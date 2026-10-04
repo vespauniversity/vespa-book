@@ -1,0 +1,83 @@
+schema product {
+
+  document product {
+
+    # ESCI is multilingual. We index the US English subset, and telling Vespa
+    # the language up front is what makes tokenisation and stemming correct.
+    field locale type string {
+      indexing: "en" | set_language
+    }
+
+    # The ASIN. Only unique within a locale, which is why the document id
+    # carries the locale too. `rank: filter` because matching on an id should
+    # never contribute to a relevance score.
+    field id type string {
+      indexing: summary | index
+      rank: filter
+      match: word
+    }
+
+    # `index` makes a field searchable; `attribute` makes it available in
+    # memory for filtering, grouping and ranking. Fields the reader searches
+    # get an index; fields used to rank or filter get an attribute.
+    field title type string {
+      indexing: summary | index
+      match: text
+    }
+
+    # Bullet points, not description, are the body field here: 48.7% of this
+    # corpus has no description at all (build.json, documents_without_description
+    # 49,346 of 101,341); how many lack bullets is not counted, so no figure is
+    # claimed. Ranking a field that is absent half the time looks like it works
+    # and quietly scores nothing - which the untuned `default` profile below
+    # still does, deliberately: it is the floor chapter 3 tunes away from. An
+    # array because that is how the bullets arrive once split.
+    field bullets type array<string> {
+      indexing: summary | index
+      match: text
+    }
+
+    field description type string {
+      indexing: summary | index
+      match: text
+    }
+
+    field brand type string {
+      indexing: summary | index | attribute
+      match: text
+    }
+
+    field color type string {
+      indexing: summary | index | attribute
+      match: text
+    }
+
+    # Half the corpus has no description. Making its absence an explicit
+    # signal is better than letting later ranking expressions score an empty
+    # field and quietly conclude nothing.
+    field has_description type bool {
+      indexing: summary | attribute
+    }
+
+  }
+
+  # What a query searches when it does not name a field.
+  fieldset default {
+    fields: title, bullets, description, brand, color
+  }
+
+  rank-profile default {
+    first-phase {
+      expression: nativeRank(title, bullets, description)
+    }
+  }
+
+  # A floor. Every quality number in later chapters is easier to read against
+  # the score of choosing at random than in isolation.
+  rank-profile random {
+    first-phase {
+      expression: random
+    }
+  }
+
+}

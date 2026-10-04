@@ -1,0 +1,74 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "none declared",
+  "fed": 2000,
+  "failed": 0,
+  "docs_per_second": 498,
+  "indexed": 2000,
+  "checks": [
+    {
+      "name": "container responds",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "every document accepted",
+      "ok": true,
+      "detail": "0 failed"
+    },
+    {
+      "name": "documents are visible",
+      "ok": true,
+      "detail": "2,000 in the index, 2,000 fed"
+    },
+    {
+      "name": "a known document is retrievable",
+      "ok": true,
+      "detail": "us_0000306045"
+    },
+    {
+      "name": "bullets came back as an array",
+      "ok": true,
+      "detail": "list"
+    },
+    {
+      "name": "has_description came back as a bool",
+      "ok": true,
+      "detail": "True"
+    },
+    {
+      "name": "title is not empty",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "free-text search returns hits",
+      "ok": true,
+      "detail": "5 hits"
+    },
+    {
+      "name": "ranking changes the order",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "a trace comes back",
+      "ok": true,
+      "detail": "3 entries"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-15T02:08:43Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

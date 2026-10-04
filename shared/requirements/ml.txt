@@ -1,0 +1,7 @@
+# Training and exporting a ranking model (chapter 7).
+-r base.txt
+lightgbm>=4.6.0
+onnxmltools>=1.16.0
+onnx>=1.17.0
+onnxruntime>=1.20.0
+numpy>=2.0.0

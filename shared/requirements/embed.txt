@@ -1,0 +1,4 @@
+# Offline embedding (chapter 4's precomputed path).
+-r base.txt
+onnxruntime>=1.20.0
+tokenizers>=0.20.0

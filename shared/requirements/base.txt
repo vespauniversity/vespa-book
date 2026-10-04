@@ -1,0 +1,3 @@
+# Everything needs these.
+requests>=2.32.0
+pyarrow>=19.0.0

@@ -1,0 +1,30 @@
+[chapter]
+number = 2
+title = "Getting Started with Vespa"
+corpus_preset = "book"
+
+[bootstrap]
+# What ./bootstrap.sh runs when the index holds fewer documents than this.
+feed = ".venv/bin/python chapters/ch02/smoke_test.py"
+documents = 2000
+
+[requirements]
+groups = ["base"]
+
+[tools]
+# The shared tools this chapter ships. A publish copies the union of these
+# lists, so a name missing from every chapter's is a script a reader is told to
+# run and does not have.
+#
+# A list, not something worked out at publish time: a closure computed there is
+# wrong quietly. This list was itself seeded from such a closure and came out
+# one name short, because the closure matched `import x` and not `from x import
+# y` - which is how five of these are imported.
+shared = [
+  "builds.py",
+  "corpus.py",       # not imported by smoke_test.py: bootstrap.sh runs it as a subprocess
+  "deployed.py",
+  "feed.py",
+  "hostinfo.py",
+  "query.py",
+]

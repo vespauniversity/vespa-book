@@ -1,0 +1,28 @@
+{
+  "source": "products.jsonl",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "none declared",
+  "documents": 2000,
+  "failed": 0,
+  "retried": 0,
+  "seconds": 4.0,
+  "docs_per_second": 500,
+  "concurrency": 16,
+  "batch_size": 128,
+  "limit": 2000,
+  "label": "ch02 2,000-document feed",
+  "host": {
+    "captured_at": "2026-09-15T09:15:59Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Ours, not the reader's: the declaration check and the test suite.
+# Installed only with `./setup.sh --tests`.
+-r base.txt
+pytest>=8.0.0
