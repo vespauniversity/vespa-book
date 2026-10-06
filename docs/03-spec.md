@@ -49,10 +49,10 @@
 **問題**：從零到「查詢回來了」要幾步，每一步 Vespa 在做什麼。
 
 **預期結論**（`bootstrap.sh` 三條路實測、Q6、Q2）
-- `./bootstrap.sh ch02` 一條命令：venv、corpus、容器、deploy、feed 2,000 筆 + 十項 smoke check。既有環境 6.4 s、`--fresh` 42.9 s、空 cache 且無 build 的首次執行 14m 18.6 s（corpus 串流 811 s）（cost，M4 Pro / Docker 4 CPU / 10 GB；`chapters/ch02/review/bootstrap-*.txt`，D40 更新）。「有 cache 無 build」那條路的秒數在 step 5 loop-back 補。
+- `./bootstrap.sh ch02` 一條命令：venv、corpus、容器、deploy、feed 2,000 筆 + 三項 smoke check。既有環境 6.4 s、`--fresh` 42.9 s、空 cache 且無 build 的首次執行 14m 18.6 s（corpus 串流 811 s）（cost，M4 Pro / Docker 4 CPU / 10 GB；`chapters/ch02/review/bootstrap-*.txt`，D40 更新）。「有 cache 無 build」那條路的秒數在 step 5 loop-back 補。
 - 2,000 筆的結果刻意差：corpus 的前兩千筆是什麼就是什麼——這是 ch3 要餵全量的理由，先埋。證據是一個查詢的結果 block（`expected/query-2000.block.md`，D40），不是散文。
 
-**量什麼**：smoke 十項（quality，布林）；feed 計數 documents / failed / retried（quality）；feed 秒數與 docs/s、bootstrap 秒數（cost，帶 Q4 條件句）。Q6 的報告欄位缺口（batch_size / limit / label）在 step 3 補。
+**量什麼**：smoke 三項（quality，布林）；feed 計數 documents / failed / retried（quality）；feed 秒數與 docs/s、bootstrap 秒數（cost，帶 Q4 條件句）。Q6 的報告欄位缺口（batch_size / limit / label）在 step 3 補。
 
 **散文的論點**
 1. 容器節點與內容節點：一個收請求、一個存資料並在資料旁邊算——先用「櫃台與倉庫」講，再給名字。

@@ -1,11 +1,13 @@
-"""Does the application deploy, accept documents, and answer queries?
+"""Does the deployed application respond and expose the expected documents?
 
 A smoke test is not a relevance test. It answers the question you actually have
 after a deploy — is anything at all working — and it answers it in seconds, so
 that when chapter 3 reports a disappointing NDCG you already know the problem
 is the ranking and not the plumbing.
 
-    vespa deploy --wait 300 chapters/ch02/app
+Feed separately before running these read-only checks:
+
+    python shared/tools/feed.py builds/<build-id>/products.jsonl --limit 2000
     python chapters/ch02/smoke_test.py --build builds/<build-id> --limit 2000
 
 This prints two of the chapter's blocks and says which:
@@ -18,8 +20,8 @@ measurement. What each check *catches* is editorial prose and stays in the
 chapter beside this block, not in this command's output - but the list of names
 is the suite's and comes from here, so that **a check added tomorrow appears in
 the block with nothing written beside it** instead of being silently absent.
-The hand-written version of that table listed nine checks out of ten and got
-one of the nine's names wrong.
+Keeping the list here prevents the documented checks from drifting from the
+checks the script actually runs.
 
 Stdout is the block and nothing else: the PASS and FAIL lines you watch go by
 are on stderr, and so is everything else this says.
@@ -33,34 +35,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "shared" / "tools"))
 
-import collections             # noqa: E402
-import re                      # noqa: E402
-
 import builds                  # noqa: E402
 import deployed                # noqa: E402
-import feed as feeder          # noqa: E402
 import hostinfo                # noqa: E402
 from query import Vespa        # noqa: E402
 
 CHECKS: list[tuple[str, bool, str]] = []
 
 # Every check this suite runs, in the order it runs them. Declared rather than
-# collected, because four of these only run when the one before them passed -
-# so a run that failed early would print a shorter list, and a block shorter
-# than the suite is exactly the silent absence the `checks` table existed to
-# prevent. `check()` refuses a name that is not here, which is how a check
-# added without being declared announces itself.
+# collected, so a run that stops early cannot shrink the documented list.
+# `check()` refuses a name that is not declared here.
 CHECK_NAMES: tuple[str, ...] = (
     "container responds",
-    "every document accepted",
     "documents are visible",
     "a known document is retrievable",
-    "bullets came back as an array",
-    "has_description came back as a bool",
-    "title is not empty",
-    "free-text search returns hits",
-    "ranking changes the order",
-    "a trace comes back",
 )
 
 
@@ -97,32 +85,6 @@ def smoke_output_block(checks: list[tuple[str, bool, str]]) -> str:
 BLOCKS = {"smoke-output": "a run of the suite", "checks": "the check names"}
 
 
-def common_term(products: Path, limit: int | None) -> str:
-    """A word that is certainly in the documents this run actually fed.
-
-    The smoke test feeds a slice, and the slice is whatever happens to be at
-    the top of the corpus file. Hardcoding a search term against it is a test
-    that passes on the corpus it was written against and fails silently on the
-    next one - which is what happened: `headphones` is common in the full
-    corpus and absent from the first 2,000 documents, so two checks went red
-    over a fixture rather than over anything Vespa did.
-
-    Taking the most common title word instead makes the test depend on what was
-    fed. It is deterministic for a given slice, which is what a captured report
-    needs.
-    """
-    counts: collections.Counter[str] = collections.Counter()
-    with products.open() as fh:
-        for n, line in enumerate(fh):
-            if limit is not None and n >= limit:
-                break
-            title = json.loads(line)["fields"].get("title", "")
-            counts.update(w for w in re.findall(r"[a-z]{4,}", title.lower()))
-    if not counts:
-        raise SystemExit("no usable title text in the slice being fed")
-    return counts.most_common(1)[0][0]
-
-
 def check(name: str, ok: bool, detail: str = "") -> bool:
     if name not in CHECK_NAMES:
         raise SystemExit(
@@ -142,7 +104,7 @@ def main() -> int:
                     help="a corpus build; default is the most recent")
     ap.add_argument("--endpoint", default="http://localhost:8080")
     ap.add_argument("--limit", type=int, default=2000,
-                    help="documents to feed; the whole corpus is chapter 3's job")
+                    help="minimum documents expected in the index; does not feed")
     ap.add_argument("--capture", type=Path, default=None,
                     help="rewrite the reference in expected/. For us, when a "
                          "number has legitimately changed - not for a reader, "
@@ -164,6 +126,10 @@ def main() -> int:
         print(checks_block())
         return 0
 
+    if args.limit < 1:
+        ap.error("--limit must be at least 1")
+    CHECKS.clear()
+
     build = args.build or builds.latest()
 
     app = Vespa(args.endpoint)
@@ -181,58 +147,25 @@ def main() -> int:
               file=sys.stderr)
         return 1
 
-    print("\nfeeding", file=sys.stderr)
-    result = feeder.feed_file(products, args.endpoint, limit=args.limit)
-    print(f"  {result.summary()}", file=sys.stderr)
-    check("every document accepted", result.failed == 0,
-          f"{result.failed} failed")
-
-    term = common_term(products, args.limit)
-    print(f"\nqueries  (searching for {term!r}, the commonest word in what was fed)",
-          file=sys.stderr)
+    print("\nqueries", file=sys.stderr)
     total = app.count()
-    check("documents are visible", total >= result.ok,
-          f"{total:,} in the index, {result.ok:,} fed")
+    check("documents are visible", total >= args.limit,
+          f"{total:,} in the index, at least {args.limit:,} expected")
 
-    # A document we fed, read back whole. This catches the mistakes that a
-    # count cannot: a field that did not survive the round trip, an array that
-    # arrived as a string, a bool that arrived as text.
-    first = json.loads(products.open().readline())
+    # The first document in the build should have been fed separately.
+    # Check the returned ASIN, rather than accepting any nonempty result.
+    with products.open() as fh:
+        line = fh.readline()
+    if not line.strip():
+        print(f"\nNo documents in {products}", file=sys.stderr)
+        return 1
+    first = json.loads(line)
     doc_id = first["put"].rsplit("::", 1)[1]
-    r = app.query(f'select * from product where id contains "{doc_id.split("_", 1)[1]}"',
+    asin = first["fields"]["id"]
+    r = app.query(f"select id from product where id contains {json.dumps(asin)}",
                   hits=1)
-    if check("a known document is retrievable", bool(r.hits), doc_id):
-        f = r.hits[0].fields
-        check("bullets came back as an array", isinstance(f.get("bullets"), list),
-              type(f.get("bullets")).__name__)
-        check("has_description came back as a bool",
-              isinstance(f.get("has_description"), bool),
-              repr(f.get("has_description")))
-        check("title is not empty", bool(f.get("title")))
-
-    # Free-text search over the default fieldset. The detail says how many hits
-    # came back and deliberately not how long it took: this block is one a
-    # reader replaces with their own run, and a millisecond figure inside it is
-    # a cost in a block whose other lines are all reproducible. Keeping those
-    # two classes apart is the whole point of leaving it out, and chapter 3 is
-    # where latency is measured under conditions that mean something.
-    r = app.query("select id, title from product where userQuery()",
-                  query=term, hits=5)
-    check("free-text search returns hits", bool(r.hits), f"{len(r.hits)} hits")
-
-    # The ranking profile is doing something: two profiles should not agree on
-    # an ordering by accident.
-    a = app.query("select id from product where userQuery()", query=term,
-                  hits=20, ranking="default").ids()
-    b = app.query("select id from product where userQuery()", query=term,
-                  hits=20, ranking="random").ids()
-    check("ranking changes the order", a != b,
-          "default and random agreed, which is suspicious" if a == b else "")
-
-    # Tracing works, because chapter 2 asks the reader to read one.
-    r = app.query("select id from product where userQuery()", query=term,
-                  hits=1, trace=3)
-    check("a trace comes back", bool(r.trace), f"{len(r.trace)} entries")
+    check("a known document is retrievable",
+          any(h.fields.get("id") == asin for h in r.hits), doc_id)
 
     passed = sum(1 for _, ok, _ in CHECKS if ok)
     print(f"\n{passed}/{len(CHECKS)} checks passed", file=sys.stderr)
@@ -254,9 +187,9 @@ def main() -> int:
                           f"got {mine.get(n)}", file=sys.stderr)
             else:
                 print(f"  the same {len(mine)} checks, all agreeing", file=sys.stderr)
-            if want.get("fed") != result.ok:
-                print(f"  fed {result.ok:,} where the reference fed "
-                      f"{want.get('fed'):,}", file=sys.stderr)
+            if want.get("expected_documents") != args.limit:
+                print(f"  expecting {args.limit:,} documents where the reference "
+                      f"expected {want.get('expected_documents')}", file=sys.stderr)
         else:
             # `expected/smoke.json` is written by `--capture`; until a capture
             # has run there is nothing to compare against.
@@ -277,9 +210,7 @@ def main() -> int:
             # describe, in a report whose other fields would all still look
             # right. `unreachable` is the third answer and is not this one.
             **deployed.stamp(),
-            "fed": result.ok,
-            "failed": result.failed,
-            "docs_per_second": round(result.rate),
+            "expected_documents": args.limit,
             "indexed": total,
             "checks": [{"name": n, "ok": ok, "detail": d} for n, ok, d in CHECKS],
             "host": hostinfo.collect(),

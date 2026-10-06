@@ -198,7 +198,7 @@ class Vespa:
 # Title text a reader has not seen printed anywhere else in this file - the
 # plain-text branch below already truncates to the same width, so a title
 # reads the same length whichever mode showed it.
-TITLE_WIDTH = 70
+TITLE_WIDTH = 150
 
 # A dict, not a bare flag, because every other tool in this repository that
 # takes `--block` chooses a name from one (`evaluate.py`, `smoke_test.py`,
@@ -427,7 +427,7 @@ def main() -> int:
           f"{r.ms:.0f} ms round trip{reported}\n")
     for i, hit in enumerate(r.hits, 1):
         title = hit.fields.get("title", "")
-        print(f"{i:>2}. {hit.relevance:8.4f}  {title[:70]}")
+        print(f"{i:>2}. {hit.relevance:8.4f}  {title[:150]}")
         if hit.features:
             print("      " + "  ".join(f"{k}={format_feature(v)}" for k, v in hit.features.items()))
 

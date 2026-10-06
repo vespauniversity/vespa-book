@@ -31,6 +31,9 @@
 #                 a plain attribute afterwards by a partial update names it
 #                 as [bootstrap] update_field and the command as update; that
 #                 update runs when no document carries a value yet.
+#                 Finally, [bootstrap] smoke runs read-only checks even when
+#                 feeding was skipped. Commands can use $build_dir (the
+#                 verified corpus) and $want_docs (the chapter's target).
 #
 # Pins live in docs/pins.md. The chapter's own needs live in its chapter.toml.
 set -euo pipefail
@@ -158,6 +161,7 @@ PY
 preset=$(read_toml chapter.corpus_preset)
 groups=$(read_toml requirements.groups)
 feed_cmd=$(read_toml bootstrap.feed)
+smoke_cmd=$(read_toml bootstrap.smoke)
 want_docs=$(read_toml bootstrap.documents)
 want_field=$(read_toml bootstrap.requires_field)
 probe_profile=$(read_toml bootstrap.probe_profile)
@@ -308,6 +312,13 @@ if [ -n "$update_field" ]; then
     fi
     echo "   $update_field set on $have_field documents"
   fi
+fi
+
+# Smoke checks belong to the documents stage, after any feed or updates.
+# Existing documents skip feeding, but must still pass verification.
+if [ -n "$smoke_cmd" ]; then
+  do_ "$smoke_cmd"
+  eval "$smoke_cmd"
 fi
 
 # ---- state ------------------------------------------------------------------
