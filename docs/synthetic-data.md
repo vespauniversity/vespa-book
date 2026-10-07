@@ -1,8 +1,10 @@
 # Deriving the data chapters 8, 10 and 11 need
 
-Status: proposal, nothing built. **Ours.** Written so that there is a direction
-to offer if the author has none, and so that the decision is made once rather
-than three times.
+Status: built — chapter 8 derives `tenant_id` and the invented staff registry
+(`chapters/ch08/derive_tenants.py`), chapter 10 derives the users
+(`chapters/ch10/`); this file is the rule they follow, written before either
+was built. **Ours.** Written so that there is a direction to offer if the
+author has none, and so that the decision is made once rather than three times.
 
 ## The problem
 
@@ -34,7 +36,7 @@ field may demonstrate a mechanism; it may not claim a result.
 
 Chapters 8, 10 and 11 all need "who is this user and what may they see". If each
 chapter derives its own, the three will disagree, and by then the disagreement
-is in three manuscripts. Everything below lives in `shared/tools/` and is shared.
+is in three manuscripts. Everything below is derived by one tool per chapter (`chapters/ch08/derive_tenants.py`, chapter 10's user tools), each reading the same rules here.
 
 Common requirements for every tool here:
 
@@ -45,8 +47,10 @@ Common requirements for every tool here:
   inflates every number in the book with nothing to say so. The tools take a
   split argument and refuse to run without one.
 - **Emits partial updates**, not documents. These fields attach to products that
-  are already indexed; a partial-update feed is about three and a half minutes
-  against a full re-feed of eight and a half.
+  are already indexed; a partial-update feed is a few minutes against a full re-feed of
+  about half an hour (the proposal's estimates were 3.5 and 8.5 minutes;
+  the measured values are chapter 8's `expected/feed-tenants.json`, 224 s,
+  and `expected/feed.json`, 1,752 s).
 - **Writes a derivation record** next to its output: which rule produced each
   field, and whether that field is derived or invented.
 
@@ -68,8 +72,8 @@ gives a selectivity range spanning four orders of magnitude — **on full ESCI;
 the table below is full-ESCI, not the book's 101,341-document build.** On the
 build no brand reaches 1% (`nike` 0.596%), the no-brand marketplace tenant
 (5.33%) is the largest tenant, and the ladder is D23's five rungs on existing
-fields (`probes/q09-tenants/VERDICT.md`; the build's counts are in chapter 8's
-reports, D101 補充):
+fields (the Phase-1 tenant probe, a maintainers' record not shipped; the build's
+counts are in chapter 8's reports):
 
 | | share of the corpus (full ESCI) |
 |---|---|
@@ -85,10 +89,13 @@ risk: an experimental design that cannot express the effect it is looking for.
 **Output.** `tenant_id` per product, as a partial update, plus a tenant registry
 with each tenant's size so the chapter can pick filter targets across the range.
 
-**Invented, and must be labelled as such:** user, group and role. They hang off
-the tenant - a seller's staff - which gives them structure but not evidence.
-Chapter 8 may use them to demonstrate authorization and to test for leakage; it
-may not present any relevance number that depends on them.
+**Invented, and must be labelled as such:** chapter 8's staff accounts (`users.json`,
+five accounts, each an allowed set of sellers) — the registry behind authorization,
+not the chapter-10 users of §2, which are derived. They hang off the tenant - a
+seller's staff - which gives them structure but not evidence. Chapter 8 may use
+them to demonstrate authorization and to test for leakage; it may not present
+any relevance number that depends on them. (As built: no group or role; the
+registry has accounts only.)
 
 ## 2. `derive_users.py` - who is shopping
 
@@ -101,9 +108,12 @@ capped at 30 queries per user (seeded). A user is therefore an interest cluster
 around one brand, not a person, and one query can seed several users at once.
 The pool of queries is the build's train queries plus the ESCI train-split
 queries outside the build whose `E` products are in the corpus (D25 B). A user's
-preferences are the brand distribution of the products they judged `E` (the
-second-order profile removes the defining brand); the colour distribution is
-kept for a negative result.
+**context** (never called a preference: a judgement is not a choice, D111) is the
+brand distribution of the products they judged `E` (the second-order profile
+removes the defining brand) and, as built, the mean of their title vectors; the
+colour distribution is computed by the evaluation tool from the same products and
+is not stored (as built it came out real and small, +0.008, not the negative
+result this proposal expected).
 
 Preferred over clustering query embeddings because it needs no model, cannot
 drift when a model is swapped, and rests on a human judgement rather than on a
@@ -111,11 +121,26 @@ similarity threshold.
 
 **The circularity to avoid.** Building a profile from judgements and then
 evaluating against judgements is a system marking its own homework. Each user's
-queries are split: the earlier ones build the profile, the held-out ones are
-what recommendation quality is measured against. Both halves come from the train
+queries are split by a seeded shuffle on the user's own id (not by order): half
+build the profile, the held-out half are what recommendation quality is measured
+against. Both halves come from the train
 split; test stays untouched until the chapter reports.
 
 **Output.** Per-user profile tensors, and a per-user evaluation set.
+
+**As built (chapter 10, `chapters/ch10/derive_users.py`, `derive_events.py`,
+`profile_updater.py`).** 4,210 users, fed as empty `user` documents and filled by
+one partial update per event. Each document carries seven fields: `user_id`,
+`defining_brand`, `profile_vector` (the plain running mean of the title vectors
+judged relevant — derived), `brand_weights` (one count per other brand — derived),
+`seen` (every product id applied — derived), `events_applied` (a count), and
+`event_times` (epoch seconds, one cell per relevant product — **invented**: the
+clock is a fixed snapshot day, 2026-11-27, with earlier events counted back one
+day each). The event stream carries `event_epoch` / `event_time` beside the tuple
+of §3. "No timestamps" below therefore means ESCI has none; the chapter invents a
+clock and says so wherever it appears. The feed is whole (empty) documents first,
+then partial updates — "emits partial updates, not documents" above describes the
+tenant tool, not this one.
 
 **Cannot be derived, and the chapter has to say so:**
 

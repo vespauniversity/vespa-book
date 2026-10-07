@@ -1,6 +1,6 @@
 # Shared tools
 
-One copy, on the path of every environment `setup.sh` creates. Nothing is
+One copy, on the path of every environment `bootstrap.sh` creates. Nothing is
 copied between chapter directories, so a fix here is a fix everywhere — and
 each chapter's `chapter.toml` lists which of these it ships, so a chapter hands
 over what it asks you to run and not what a later one will.
@@ -21,7 +21,7 @@ difference between two chapters' packages is what that chapter added.
 | `compare.py` | chapter 4 | yes | Puts evaluation reports side by side: tables, brackets on every difference, the verdict word (chapter 3 ships its own copy with a grid block) |
 | `models.py` | chapter 6 | yes | Fetches a pinned model file by URL and commit, and verifies it by hash |
 | `hf.py` | chapter 2 | no | Reads a Hugging Face parquet dataset over HTTP range requests, so a build fetches the columns it needs rather than the 2.5 GB file |
-| `gains.py` | chapter 3 | no | ESCI relevance labels and the two gain mappings in circulation |
+| `gains.py` | chapter 2 | no | ESCI relevance labels and the two gain mappings in circulation |
 | `metrics.py` | chapter 3 | no | Retrieval metrics, implemented here rather than imported |
 | `builds.py` | tooling | no | Reads what a corpus build produced |
 | `hostinfo.py` | tooling | no | Records the machine a measurement was taken on |
@@ -40,7 +40,7 @@ not in your copy, and nothing you do have asks for it. The three marked
 ## Building a corpus
 
 ```
-.venv/bin/python shared/tools/corpus.py build --preset small
+.venv/bin/python shared/tools/corpus.py build --preset book
 ```
 
 The defaults are what the book measures. Changing one gives a different corpus
@@ -54,7 +54,8 @@ flags:
 | Preset | Queries | Documents | For |
 |---|---|---|---|
 | `tiny` | 200 | ~7K | iterating |
-| `small` | 1,000 | ~100K | the numbers that appear in the book |
+| `book` | 3,500 | ~101K | the numbers that appear in the book |
+| `small` | 1,000 | ~100K | the previous book preset, kept so its reports stay readable |
 | `full` | all | ~480K | whoever has the machine |
 
 The first build streams the dataset once and caches the US rows under

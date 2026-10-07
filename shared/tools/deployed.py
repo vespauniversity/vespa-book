@@ -32,11 +32,10 @@ not until 2026-09-14, and the cost of that was exact: the rename reached the
 readers and all 38 committed reports and none of the eight writers, because
 nothing tied the writers to the name. Every
 report written in between carried the old key while the docstring here claimed
-the new one. A name typed in eight places is a name that will drift; a test now
-refuses the literal anywhere but here. What used to keep them together was
-`publish_lint.py`'s `reports say how they were measured`,
-which accepts the plural and nothing else, so a caller left behind produces a
-report that fails rather than one that quietly disagrees.
+the new one. A name typed in eight places is a name that will drift; a test
+(`tests/test_tools.py`) now refuses the literal anywhere but here and accepts
+the plural key and nothing else, so a caller left behind produces a report
+that fails rather than one that quietly disagrees.
 """
 from __future__ import annotations
 

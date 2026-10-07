@@ -292,7 +292,17 @@ def main() -> int:
         if not {"label", "scores", "per_query_ndcg10"} <= r.keys():
             skipped.append(path.name)
             continue
-        runs[r["label"]] = r
+        # One row per label. Two reports carrying the same label (the same
+        # command run twice, a shipped row beside its rerun) would otherwise
+        # collapse into one row with no message - the second silently
+        # replacing the first - so this refuses instead: relabel one of them
+        # (`evaluate.py --label`) or leave one out.
+        if r["label"] in runs:
+            raise SystemExit(
+                f"two reports carry the label {r['label']!r}: "
+                f"{runs[r['label']]['_path']} and {path}; one row per label - "
+                f"relabel one (evaluate.py --label) or leave one out")
+        runs[r["label"]] = {**r, "_path": str(path)}
 
     if skipped:
         print(f"not evaluation reports, skipped: {', '.join(sorted(skipped))}\n",
@@ -414,7 +424,14 @@ def main() -> int:
             # that, and this tool may be run anywhere against reports taken
             # anywhere.
             "host": hostinfo.collect(),
-            "runs": {k: v["scores"] for k, v in runs.items()},
+            # Each run's scores as its own report has them; `latency_ms`
+            # inside them is only readable with the run's
+            # `latency_conditions` (warm, passes), so that travels with it
+            # when the report has one.
+            "runs": {k: ({**v["scores"],
+                          "latency_conditions": v["latency_conditions"]}
+                         if "latency_conditions" in v else v["scores"])
+                     for k, v in runs.items()},
             "ndcg10_vs_baseline": comparisons,
             # The recall@100 bracket the `comparison` block prints, kept
             # in the report too (it was once stdout-only, so every

@@ -9,7 +9,7 @@ The defaults are what the book measures. Change one and you get a different
 corpus and different numbers, which is fine and is the point of the flags - the
 book just will not be describing what you have.
 
-  python shared/tools/corpus.py build --preset small
+  python shared/tools/corpus.py build --preset book
 """
 from __future__ import annotations
 
@@ -48,10 +48,33 @@ DIFFICULTIES = {
     "hard": "small_version",   # the reduced set: easy queries filtered out
     "all": "large_version",    # everything, easy queries included
 }
-VERSION = "v4"          # bump when a build's content changes
+# The build directory is named after this, and that name is a pin: the
+# chapters' commands, `docs/pins.md` and the pinned-build constants in later
+# chapters' tools all spell it out, so it changes only when a build's
+# documents or judgements change in substance. What a build's document ids
+# look like is ID_FORMAT below; `verify` checks that separately.
+VERSION = "v4"
 #   v2: strip control characters that Vespa refuses (see clean_text)
 #   v3: the third split is called validation, not dev
 #   v4: both ESCI query sets are cached; --difficulty selects one
+# How a document is named: the namespace is the locale, the user-specified
+# part is the bare ASIN (`id:us:product::B01N0TQ0OH`); the `id` field inside
+# the document is the bare ASIN as before. A build.json without this value,
+# or with another, is older than the format and `verify` says to rebuild.
+ID_FORMAT = "locale-namespace"
+
+
+def build_files() -> list[str]:
+    """The files a build writes and its content hash covers, in hash order."""
+    return sorted(["products.jsonl", "doc_signals.jsonl"]
+                  + [f"{kind}_{split}.csv"
+                     for split in ("train", "validation", "test")
+                     for kind in ("queries", "judgements")])
+
+
+def document_id(pid: str) -> str:
+    """The Vespa document id of a product: `id:<locale>:product::<asin>`."""
+    return f"id:{LOCALE}:product::{pid}"
 
 INDEX_COLUMNS = ["query_id", "query", "product_id", "product_locale",
                  "esci_label", "small_version", "large_version"]
@@ -73,10 +96,9 @@ PRESETS = {
     "tiny": Preset("tiny", queries=200, distractors=6_000),
     # The book's numbers come from this one. 3,500 hard US queries, 30% of
     # them test, 30% of the rest validation: about 1,715 / 735 / 1,050. Sized
-    # by probes/q01-validation-size (a split that must call a 0.03 difference
-    # needs ~700 queries; test, which reports 0.02 differences, ~1,000) and
-    # probes/q02-corpus-size (100k products feed in 3 min plain, 8 min with the
-    # embedder). Judged products come to about 67k, so 33k distractors make
+    # by two Phase-1 measurements (a split that must call a 0.03 difference
+    # needs ~700 queries; test, which reports 0.02 differences, ~1,000; and
+    # 100k products feed in 3 min plain, 8 min with the embedder). Judged products come to about 67k, so 33k distractors make
     # the corpus about 100k.
     "book": Preset("book", queries=3_500, distractors=33_000,
                    validation_fraction=0.3),
@@ -318,7 +340,10 @@ def build(preset: Preset, seed: int, mapping: str, max_shards: int | None,
             if not desc:
                 n_no_desc += 1
             fh.write(json.dumps({
-                "put": f"id:product:product::{LOCALE}_{pid}",
+                # The document id: namespace = the locale, document type,
+                # user-specified part = the bare ASIN; the `id` field below is
+                # that same ASIN.
+                "put": document_id(pid),
                 "fields": {
                     "id": pid,
                     "locale": LOCALE,
@@ -336,7 +361,7 @@ def build(preset: Preset, seed: int, mapping: str, max_shards: int | None,
     with (out / "doc_signals.jsonl").open("w") as fh:
         for pid in corpus_pids:
             fh.write(json.dumps({
-                "update": f"id:product:product::{LOCALE}_{pid}",
+                "update": document_id(pid),
                 "fields": {
                     "popularity": {"assign": len(sig_queries.get(pid, ()))},
                     "exact_rate": {"assign": round(
@@ -370,8 +395,11 @@ def build(preset: Preset, seed: int, mapping: str, max_shards: int | None,
                     rows += 1
         counts[split] = {"queries": len(qids), "judgements": rows}
 
-    hashed = sorted(p.name for p in out.iterdir()
-                    if p.suffix in (".jsonl", ".csv"))
+    # Only the files this build wrote. The directory may already hold files
+    # later chapters derive beside the corpus (tenants, users, events) - a
+    # rebuild into the same directory must not fold those into the hash, or
+    # re-deriving one of them would make `verify` fail for the wrong reason.
+    hashed = build_files()
     content_hash = _hash_outputs(out, hashed)
     meta = {
         "build_id": build_id,
@@ -382,6 +410,7 @@ def build(preset: Preset, seed: int, mapping: str, max_shards: int | None,
         "gain_mapping": mapping,
         "locale": LOCALE,
         "format_version": VERSION,
+        "id_format": ID_FORMAT,
         "partial": bool(max_shards),
         "source": {"repo": hf.REPO, "revision": hf.REVISION,
                    "canonical": "amazon-science/esci-data"},
@@ -524,6 +553,11 @@ produce the same bytes, and this is how you would tell.
 
 def verify(path: Path) -> int:
     meta = json.loads((path / "build.json").read_text())
+    id_format = meta.get("id_format")
+    if id_format != ID_FORMAT:
+        print(f"document-id format: this build {id_format or 'none recorded'}, "
+              f"this tool {ID_FORMAT}\nrebuild")
+        return 1
     names = meta.get("hashed_files")
     missing = [n for n in (names or []) if not (path / n).exists()]
     if missing:
@@ -548,7 +582,7 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     b = sub.add_parser("build")
-    b.add_argument("--preset", choices=sorted(PRESETS), default="small")
+    b.add_argument("--preset", choices=sorted(PRESETS), default="book")
     b.add_argument("--seed", type=int, default=42)
     b.add_argument("--gains", choices=sorted(gains_mod.MAPPINGS),
                    default=gains_mod.DEFAULT)

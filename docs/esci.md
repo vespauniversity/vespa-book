@@ -111,8 +111,8 @@ extrapolation that stood here — two shards at 276 MB and 103 seconds, hence
 every chapter's `review/bootstrap-cold.txt` records a whole cold run from an
 empty cache (ch02 14m 18.6s, ch03 17m 57s, ch04 22m 19s, the dataset stream
 13–15 minutes of each), which is roughly where the extrapolation landed and is
-also why it looked right. (`shared/expected/`, the old project's whole-book
-timing reports, was removed under D56.)
+also why it looked right. (The old project's whole-book timing reports
+were removed with the old project.)
 After the first build, changing preset, seed or gain mapping costs nothing but
 local compute.
 
@@ -223,9 +223,11 @@ three.
 The chosen mapping is stated wherever a number derived from it appears. NDCG is
 not comparable across mappings.
 
-## Field coverage — half the corpus has no description
+## Field coverage — half the dataset has no description
 
-Measured on the 2,027,874 training rows of `tasksource/esci`:
+Measured on the dataset's 2,027,874 training rows (`tasksource/esci`), not on
+this book's 101,341-document build (whose own description figure, 48.7%, is in
+`product.sd`):
 
 | Field | Missing |
 |---|---|
@@ -237,8 +239,8 @@ Measured on the 2,027,874 training rows of `tasksource/esci`:
 
 This is not a detail. Several chapters are built on "separate title and body
 signals" — chapter 3 tunes field weights across them, chapter 4 gives each its
-own embedding, chapters 5 and 6 fuse the two. On this corpus the body field is
-absent for more than half the documents, and an embedding of an empty string
+own embedding, chapters 5 and 6 fuse the two. In the dataset's training rows the body field is
+absent for more than half the query–product rows, and an embedding of an empty string
 still produces a vector with a closeness score, so the failure is silent rather
 than loud.
 

@@ -4,6 +4,7 @@
 #   ./bootstrap.sh ch02            from wherever you are, to chapter 2's start
 #   ./bootstrap.sh ch03            from a chapter-2 container, only what is missing
 #   ./bootstrap.sh ch03 --fresh    throw the venv and the container away first
+#   ./bootstrap.sh ch03 --tests    the same, plus the test framework (see step 1)
 #
 # The same command works whether you are starting the book here or continuing
 # from the previous chapter. Each of the five resources below is checked and
@@ -11,8 +12,24 @@
 # more steps. Nothing here decides anything about your results; it only gets
 # you to the point where the chapter's own commands can.
 #
-#   1. venv       .venv with Python 3.11 and the pinned packages this chapter needs
-#   2. corpus     the ESCI sample under builds/, built from the cached dataset
+# From a container that holds a later chapter, use --fresh: the script skips a
+# feed the count says it does not need and does not remove a later chapter's
+# document types.
+#
+#   1. venv       .venv with Python 3.11 and the pinned packages this chapter
+#                 needs (chapter.toml [requirements] groups, each from its lock
+#                 file under shared/requirements/lock/). There is one
+#                 environment and it only grows: following the book in order
+#                 means running this script as you reach each chapter, not
+#                 keeping seven virtual environments. --tests adds the
+#                 `tests` group (pytest) as well; nothing a chapter asks you
+#                 to run wants a test framework, so it is off by default -
+#                 the suite under tests/ belongs to whoever maintains this
+#                 repository, not to anyone reading the book.
+#   2. corpus     the ESCI sample under builds/, built from the cached dataset;
+#                 a build whose documents predate the current document-id
+#                 format (namespace = the locale, user part = the bare ASIN)
+#                 is rebuilt in place, same directory name
 #   3. container  one Vespa container, the pinned image, named vespa-book-fable
 #   4. app        this chapter's application package deployed - after any
 #                 model file it declares by `file:` has been fetched into
@@ -20,7 +37,11 @@
 #                 models). When Vespa answers the deploy with "require
 #                 restart" (an attribute setting changed on a running
 #                 container), the search node is restarted here and the
-#                 script waits until every document answers again.
+#                 script waits until every document answers again. A deploy
+#                 Vespa refuses (its answer starts with "Error:" - a package
+#                 that fails validation, say a field whose indexing changed)
+#                 stops the script with that answer: the CLI exits 0 on a
+#                 refusal, so the text is the only signal.
 #   5. documents  this chapter's documents fed, if the container has fewer -
 #                 or, for a chapter whose documents carry a field computed at
 #                 indexing time, if none of them has it yet (the count alone
@@ -30,10 +51,12 @@
 #                 (chapter.toml [bootstrap] probe_*). A chapter that fills
 #                 a plain attribute afterwards by a partial update names it
 #                 as [bootstrap] update_field and the command as update; that
-#                 update runs when no document carries a value yet.
-#                 Finally, [bootstrap] smoke runs read-only checks even when
-#                 feeding was skipped. Commands can use $build_dir (the
-#                 verified corpus) and $want_docs (the chapter's target).
+#                 update runs when no document carries a value yet. Before
+#                 any of this, when the index already holds documents, the
+#                 first document of the build file is fetched by id through
+#                 the document API: a 404 means the index was fed under an
+#                 older document-id format, and the script refuses and asks
+#                 for --fresh rather than feeding on top.
 #
 # Pins live in docs/pins.md. The chapter's own needs live in its chapter.toml.
 set -euo pipefail
@@ -47,15 +70,17 @@ PYTHON_MINOR="3.11"
 
 chapter=""
 fresh=0
+with_tests=0
 for arg in "$@"; do
   case "$arg" in
     --fresh) fresh=1 ;;
+    --tests) with_tests=1 ;;
     -h|--help) sed -e '1d' -e '/^[^#]/,$d' -e 's/^# \{0,1\}//' "${BASH_SOURCE[0]}"; exit 0 ;;
     ch[0-9][0-9]) chapter="$arg" ;;
     *) echo "unknown argument: $arg" >&2; exit 2 ;;
   esac
 done
-[ -n "$chapter" ] || { echo "usage: ./bootstrap.sh chNN [--fresh]" >&2; exit 2; }
+[ -n "$chapter" ] || { echo "usage: ./bootstrap.sh chNN [--fresh] [--tests]" >&2; exit 2; }
 
 toml="chapters/$chapter/chapter.toml"
 [ -f "$toml" ] || { echo "no $toml" >&2; exit 1; }
@@ -75,8 +100,8 @@ count_docs() {
 # fed again, because the vectors are computed at index time. One
 # nearest-neighbour probe answers it: zero hits means no document has the field.
 # The probe assumes the chapter's rank profile `semantic` and embedder id
-# `embedder` (docs/contracts.md); a synthetic field is not something the
-# document API is asked about.
+# `embedder`, the names every chapter from chapter 4 on keeps; a synthetic
+# field is not something the document API is asked about.
 has_field() {
   local yql="select id from product where {targetHits:1}nearestNeighbor($1, q)"
   curl -fs -G 'http://localhost:8080/search/' --data-urlencode "yql=$yql" \
@@ -146,6 +171,23 @@ has_attribute() {
     | python3 -c 'import sys, json; sys.exit(0 if json.load(sys.stdin)["root"]["fields"]["totalCount"] > 0 else 1)' 2>/dev/null
 }
 
+# The document API path (`<namespace>/<doctype>/docid/<user part>`) of the
+# first `put` in a build's products file, split by feed.py's own rule.
+first_document_path() {
+  .venv/bin/python - "$1" <<'PY'
+import json, sys
+from urllib.parse import quote
+from feed import parse_document_id
+with open(sys.argv[1]) as fh:
+    for line in fh:
+        op = json.loads(line)
+        if "put" in op:
+            ns, doctype, user = parse_document_id(op["put"])
+            print(f"{ns}/{doctype}/docid/{quote(user, safe='')}")
+            break
+PY
+}
+
 # ---- read chapter.toml ------------------------------------------------------
 read_toml() {
   python3 - "$toml" "$1" <<'PY'
@@ -160,8 +202,10 @@ PY
 }
 preset=$(read_toml chapter.corpus_preset)
 groups=$(read_toml requirements.groups)
+# The test framework is a group like the others, installed from its own lock
+# file, but no chapter declares it: it is asked for on the command line.
+if [ "$with_tests" = 1 ]; then groups="$groups tests"; fi
 feed_cmd=$(read_toml bootstrap.feed)
-smoke_cmd=$(read_toml bootstrap.smoke)
 want_docs=$(read_toml bootstrap.documents)
 want_field=$(read_toml bootstrap.requires_field)
 probe_profile=$(read_toml bootstrap.probe_profile)
@@ -206,9 +250,20 @@ echo "$root/shared/tools" > "$site/book_shared_tools.pth"
 # ---- 2. corpus --------------------------------------------------------------
 say "2/5 corpus (preset $preset)"
 build_dir=$(ls -d builds/esci-*-"$preset"-s42-kdd-v* 2>/dev/null | head -1 || true)
-if [ -n "$build_dir" ] && .venv/bin/python shared/tools/corpus.py verify "$build_dir" >/dev/null 2>&1; then
+verify_out=""
+if [ -n "$build_dir" ] && verify_out=$(.venv/bin/python shared/tools/corpus.py verify "$build_dir" 2>&1); then
   skip "$build_dir verifies"
 else
+  # `verify` also compares the document-id format the build was written
+  # with against the one corpus.py writes now; an older build is rebuilt
+  # into the same directory (the name is what every chapter's commands
+  # spell out), and the content hash changes with it.
+  if [ -n "$build_dir" ] && printf '%s' "$verify_out" | grep -q '^document-id format'; then
+    do_ "$build_dir predates the document-id format of 2026-10-06 (namespace = the locale, user part = the bare ASIN); rebuilding it in place"
+  elif [ -n "$build_dir" ]; then
+    do_ "$build_dir does not verify; rebuilding it in place. corpus.py verify said:"
+    printf '%s\n' "$verify_out" | sed 's/^/         /'
+  fi
   if [ -d shared/cache ] && [ -f shared/cache/products_us.parquet ]; then do_ "corpus.py build --preset $preset (from cache, under a minute)";
   else do_ "corpus.py build --preset $preset (first time: streams the dataset, about a quarter of an hour)"; fi
   .venv/bin/python shared/tools/corpus.py build --preset "$preset" --seed 42 --gains kdd
@@ -245,6 +300,13 @@ do_ "vespa deploy --wait 300 chapters/$chapter/app"
 docs_before_deploy=$(count_docs)
 deploy_out=$(vespa deploy --wait 300 "chapters/$chapter/app" 2>&1)
 printf '%s\n' "$deploy_out" | sed 's/^/   /'
+# The CLI exits 0 when the config server refuses the package (a 400 with "Invalid application"), so the
+# answer's text is the only signal; without this the script went on to feed a package that was never deployed.
+if printf '%s' "$deploy_out" | grep -q '^Error:\|Invalid application'; then
+  echo "   the deploy was refused (see Vespa's answer above); nothing after this step ran. A container built under an" >&2
+  echo "   earlier version of this chapter's package may need ./bootstrap.sh $chapter --fresh." >&2
+  exit 1
+fi
 if printf '%s' "$deploy_out" | grep -q 'require restart'; then
   # Vespa applied the package but an attribute setting only takes effect in a
   # restarted search node (the message names the field). Restart it and wait
@@ -273,6 +335,22 @@ fi
 # ---- 5. documents -----------------------------------------------------------
 say "5/5 documents (want $want_docs${want_field:+, carrying $want_field})"
 have=$(count_docs)
+# When the index already holds documents, ask the document API for one of
+# them by id - the first `put` in the build file, split into namespace /
+# document type / user part the way feed.py splits it. A 404 means these
+# documents were fed under an older id format: feeding on top would leave
+# them beside the new ones, so the script refuses and asks for --fresh.
+if [ "$have" -gt 0 ]; then
+  probe_path=$(first_document_path "$build_dir/products.jsonl")
+  probe_code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080/document/v1/$probe_path" 2>/dev/null)
+  if [ "$probe_code" = "404" ]; then
+    echo "   the index holds $have documents, but the build's first document ($probe_path) is not among them:" >&2
+    echo "   they were fed under an older document-id format. Run ./bootstrap.sh $chapter --fresh to replace the container;" >&2
+    echo "   feeding on top would leave the old documents beside the new ones." >&2
+    exit 1
+  fi
+  echo "   probe $probe_path answers $probe_code"
+fi
 reason=""
 if [ "$have" -lt "$want_docs" ]; then
   reason="$have of $want_docs documents"
@@ -312,13 +390,6 @@ if [ -n "$update_field" ]; then
     fi
     echo "   $update_field set on $have_field documents"
   fi
-fi
-
-# Smoke checks belong to the documents stage, after any feed or updates.
-# Existing documents skip feeding, but must still pass verification.
-if [ -n "$smoke_cmd" ]; then
-  do_ "$smoke_cmd"
-  eval "$smoke_cmd"
 fi
 
 # ---- state ------------------------------------------------------------------

@@ -30,8 +30,8 @@ schema product {
     # 49,346 of 101,341); how many lack bullets is not counted, so no figure is
     # claimed. Ranking a field that is absent half the time looks like it works
     # and quietly scores nothing - which the untuned `default` profile below
-    # still does, deliberately: it is the floor chapter 3 tunes away from. An
-    # array because that is how the bullets arrive once split.
+    # still does, deliberately: it is the starting point chapter 3 tunes away
+    # from. An array because that is how the bullets arrive once split.
     field bullets type array<string> {
       indexing: summary | index
       match: text

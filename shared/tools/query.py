@@ -4,7 +4,7 @@ A thin wrapper: build a request, send it, return the hits with their relevance
 and whatever rank features were asked for. Chapters call it rather than
 repeating the same twenty lines of `requests` each time.
 
-Tracing is here because chapter 2 asks the reader to read a result trace, and
+Tracing is here because chapter 2 confirms a result trace comes back, and
 because a query that returns the wrong thing is usually explained by the trace
 rather than by the hits.
 """
@@ -50,8 +50,10 @@ class Response:
     def vespa_ms(self) -> float | None:
         """What Vespa says it spent, as opposed to what the client observed.
 
-        The difference between the two is network and serialisation. Worth
-        reporting separately: a chapter that blames Vespa for a client's JSON
+        The difference between the two is network and serialisation and,
+        when the request carries `embed(...)` inputs, the time the container
+        spends encoding the query before the search starts. Worth reporting
+        separately: a chapter that blames Vespa for a client's JSON
         parsing has measured the wrong thing.
         """
         timing = self.raw.get("timing")
@@ -143,18 +145,23 @@ class Vespa:
         r = self.query(f"select * from {doctype} where true", hits=0)
         return r.total
 
-    def get_document(self, doctype: str, doc_id: str) -> dict | None:
+    def get_document(self, doctype: str, doc_id: str,
+                     namespace: str | None = None) -> dict | None:
         """GET one document's fields by id, or `None` if it does not exist.
 
-        `doctype` is also the namespace: every document id this project
-        writes is `id:<doctype>:<doctype>::<doc_id>` (`shared/tools/feed.py`'s
-        `parse_document_id` reads it back the same way), so there is nothing
-        else for a caller to supply. This is for state that lives in a
-        document between requests - a profile a stream of events updates one
-        field at a time - where a caller needs the current value before it
-        sends a query or applies the next change.
+        `namespace` defaults to `doctype`: a `user` document is
+        `id:user:user::<doc_id>`. A `product` document is
+        `id:<locale>:product::<asin>` (the namespace is the locale, from
+        `corpus.py`), so a product caller passes `namespace=LOCALE`.
+        `shared/tools/feed.py`'s `parse_document_id` reads either back the
+        same way. Two uses: state that lives in a document between requests -
+        a profile a stream of events updates one field at a time - where a
+        caller needs the current value before it sends a query or applies
+        the next change; and reading one fed document back whole, which is
+        what a check that a feed worked wants and what a query is not for.
         """
-        url = f"{self.endpoint}/document/v1/{doctype}/{doctype}/docid/{quote(doc_id, safe='')}"
+        url = (f"{self.endpoint}/document/v1/{namespace or doctype}/{doctype}"
+               f"/docid/{quote(doc_id, safe='')}")
         r = self.session.get(url, timeout=self.timeout)
         if r.status_code == 404:
             return None
@@ -162,18 +169,22 @@ class Vespa:
             raise RuntimeError(f"get_document failed: {r.status_code} {r.text[:400]}")
         return r.json().get("fields", {})
 
-    def update_document(self, doctype: str, doc_id: str, fields: dict) -> dict:
+    def update_document(self, doctype: str, doc_id: str, fields: dict,
+                        namespace: str | None = None) -> dict:
         """PUT a partial update against one document, and return the parsed
         response (carries `id` and nothing about the fields that changed -
         the document API does not echo a partial update back).
 
-        `fields` is already in the document API's own update shape, one entry
-        per field - `{"profile_vector": {"assign": {"values": [...]}}}`,
+        `namespace` defaults to `doctype`, as in `get_document`; a `product`
+        caller passes the locale. `fields` is already in the document API's
+        own update shape, one entry per field -
+        `{"profile_vector": {"assign": {"values": [...]}}}`,
         `{"seen": {"add": ["B000..."]}}`, `{"events_applied": {"increment": 1}}`
         - because different fields take different update verbs and only the
         caller knows which one a given change needs.
         """
-        url = f"{self.endpoint}/document/v1/{doctype}/{doctype}/docid/{quote(doc_id, safe='')}"
+        url = (f"{self.endpoint}/document/v1/{namespace or doctype}/{doctype}"
+               f"/docid/{quote(doc_id, safe='')}")
         r = self.session.put(url, json={"fields": fields}, timeout=self.timeout)
         if r.status_code >= 400:
             raise RuntimeError(f"update_document failed: {r.status_code} {r.text[:400]}")
@@ -198,7 +209,7 @@ class Vespa:
 # Title text a reader has not seen printed anywhere else in this file - the
 # plain-text branch below already truncates to the same width, so a title
 # reads the same length whichever mode showed it.
-TITLE_WIDTH = 150
+TITLE_WIDTH = 70
 
 # A dict, not a bare flag, because every other tool in this repository that
 # takes `--block` chooses a name from one (`evaluate.py`, `smoke_test.py`,
@@ -314,10 +325,8 @@ def add_where_clause(yql: str, clause: str) -> str:
 def main() -> int:
     """Ask the running application something, from a terminal.
 
-    Chapter 2 tells a reader that feeding and querying are ordinary HTTP and
-    then never has them issue a query - the smoke test does it on their behalf.
-    This is the missing half: type a question, see what comes back, and ask for
-    the trace when the answer is surprising.
+    Chapter 2 runs one query through this tool. Type a question, see what comes
+    back, and ask for the trace when the answer is surprising.
 
     `--block` is the other caller: not a person at a terminal but a chapter
     that needs the same query's hits as a finished table on the page. It
@@ -352,10 +361,11 @@ def main() -> int:
     ap.add_argument("--retriever", choices=("lexical", "semantic", "hybrid"),
                     default=None,
                     help="build the request through evaluate.build_request "
-                         "instead of --yql - the identical union YQL and "
-                         "input.query(q) the chapter's evaluation reports "
-                         "use for 'hybrid', not a hand-typed near-copy of "
-                         "it. Mutually exclusive with a non-default --yql")
+                         "instead of --yql - the same union YQL the "
+                         "chapter's evaluations send, with --hits also "
+                         "setting the vector arm's targetHits, not a "
+                         "hand-typed near-copy of it. Mutually exclusive "
+                         "with a non-default --yql")
     ap.add_argument("--param", action="append", default=None, metavar="KEY=VALUE",
                     help="an extra query parameter, repeatable - e.g. "
                          "--param 'input.query(alpha)=0.3' for hybrid_linear. "
@@ -364,7 +374,8 @@ def main() -> int:
     ap.add_argument("--where", default=None, metavar="CLAUSE",
                     help="AND this clause onto the request's YQL - "
                          "whichever it is, --retriever's or --yql's - e.g. "
-                         "--where 'tenant_id contains \"nike\"' (ch08). "
+                         "--where 'tenant_id contains \"nike\"' to keep "
+                         "one tenant's documents. "
                          "Additive only: with no --where, --retriever and "
                          "--yql behave exactly as they did before this flag "
                          "existed (existing output is frozen once a chapter has pasted it)")
@@ -408,10 +419,11 @@ def main() -> int:
                       ranking=args.ranking, trace=args.trace, **extra_params)
 
     if args.block:
-        # What the caption calls the profile. Vespa treats an unset
-        # `ranking.profile` as a request for the rank-profile literally named
-        # `default` - not a guess made here - so this is accurate whether or
-        # not `--ranking` was passed.
+        # What the caption calls the profile. When no `--ranking` is passed
+        # this caption says `default`, which is true only of an application
+        # with no query profile setting `ranking.profile` (chapter 2's); from
+        # chapter 3 on the application's query profile answers, so every later
+        # chapter's command names its profile.
         ranking = args.ranking if args.ranking is not None else "default"
         if args.block == "features":
             print(features_block(r, args.query, ranking, deployed.embedder()))
@@ -427,7 +439,7 @@ def main() -> int:
           f"{r.ms:.0f} ms round trip{reported}\n")
     for i, hit in enumerate(r.hits, 1):
         title = hit.fields.get("title", "")
-        print(f"{i:>2}. {hit.relevance:8.4f}  {title[:150]}")
+        print(f"{i:>2}. {hit.relevance:8.4f}  {title[:70]}")
         if hit.features:
             print("      " + "  ".join(f"{k}={format_feature(v)}" for k, v in hit.features.items()))
 
