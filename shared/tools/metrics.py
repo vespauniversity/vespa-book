@@ -201,7 +201,7 @@ def bootstrap_delta(a: dict[str, float], b: dict[str, float],
 #     semantic   0.4358  0.4401  0.4401      drift 0.0043 — the third
 #
 # **Whether two systems can be told apart.** That is the bootstrap interval,
-# which in this book runs 0.03 to 0.07 wide.
+# which in this book runs from under 0.01 to several hundredths wide.
 #
 # Two decimals threw the first away to prevent a misuse of the second — a
 # reader ordering three scores by a gap the interval says is invisible. The

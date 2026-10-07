@@ -18,17 +18,16 @@ ROOT = Path(__file__).resolve().parents[2]
 def latest(builds_dir: Path | None = None) -> Path:
     """The most recent usable build.
 
-    Every command would otherwise carry a twenty-four character build id that
-    the reader has to look up and retype. Builds made with `--shards` live in
-    `builds/partial/` and are not candidates, because their ground truth is
-    truncated.
+    Every command would otherwise carry a long build id that the reader has
+    to look up and retype. Builds made with `--shards` live in `builds/partial/`
+    and are not candidates, because their ground truth is truncated.
     """
     root = builds_dir or (ROOT / "builds")
     candidates = [p for p in root.glob("*") if (p / "products.jsonl").exists()]
     if not candidates:
         raise SystemExit(
             f"no corpus build in {root}. Make one with:\n"
-            "  python shared/tools/corpus.py build --preset small")
+            "  python shared/tools/corpus.py build --preset book")
     return max(candidates, key=lambda p: p.stat().st_mtime)
 
 

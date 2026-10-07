@@ -80,8 +80,13 @@ def build_request(retriever: str, text: str, hits: int,
                   query_prefix: str | None = None,
                   vector_field: str = "title_embedding",
                   embedder: str = "embedder",
-                  query_tensor: str = "q") -> dict:
+                  query_tensor: str = "q",
+                  target_hits: int | None = None) -> dict:
     """The YQL and inputs for one retrieval strategy.
+
+    `hits` is how many documents the request returns; the vector arm asks for
+    that many nearest neighbours too unless `target_hits` says otherwise, so a
+    ten-hit request can still keep a union of hundreds of candidates.
 
     `vector_field`, `embedder` and `query_tensor` default to the book's one
     embedding setup. Chapter 4 compares setups — another model, or a vector over
@@ -94,7 +99,8 @@ def build_request(retriever: str, text: str, hits: int,
     embed = {f"input.query({query_tensor})": f'embed({embedder}, "{prefix}{text}")'}
     # Each annotated operator needs its own parentheses once it is combined
     # with anything else; without them YQL fails to parse at the `or`.
-    title_nn = "({targetHits:%d}nearestNeighbor(%s, %s))" % (hits, vector_field, query_tensor)
+    title_nn = "({targetHits:%d}nearestNeighbor(%s, %s))" % (
+        hits if target_hits is None else target_hits, vector_field, query_tensor)
     # Semantic retrieval is a nearest-neighbour search over title_embedding and
     # nothing else. Per-bullet vectors were built, measured and removed in
     # chapter 4 - worse as a retriever, nothing as a signal - and this comment
@@ -179,6 +185,7 @@ def one_pass(app: Vespa, ids: list[str], queries: dict[str, str],
              extra_params: dict[str, str] | None = None,
              vector: dict[str, str] | None = None,
              reranker_inputs: dict[str, str] | None = None,
+             target_hits: int | None = None,
              ) -> tuple[dict[str, list[str]], list[float], list[float]]:
     """One sweep of the query set, timed."""
     results: dict[str, list[str]] = {}
@@ -194,7 +201,7 @@ def one_pass(app: Vespa, ids: list[str], queries: dict[str, str],
             params["recall"] = recall_clause(sorted(judged))
         text = queries[qid]
         request = build_request(retriever, text, hits, query_prefix,
-                                **(vector or {}))
+                                target_hits=target_hits, **(vector or {}))
         add_reranker_inputs(request, text, reranker_inputs)
         started = time.perf_counter()
         r = app.query(ranking=ranking, hits=hits, timing=True, **request, **params)
@@ -214,6 +221,7 @@ def run(app: Vespa, queries: dict[str, str], judgements: dict[str, dict[str, flo
         out=sys.stderr, extra_params: dict[str, str] | None = None,
         vector: dict[str, str] | None = None, passes: int = 1,
         reranker_inputs: dict[str, str] | None = None,
+        target_hits: int | None = None,
         ) -> tuple[dict[str, list[str]], list[list[float]], list[float]]:
     """Warm through the whole query set once, throw that away, then measure it
     `passes` times.
@@ -245,7 +253,7 @@ def run(app: Vespa, queries: dict[str, str], judgements: dict[str, dict[str, flo
     common = dict(ranking=ranking, mode=mode, hits=hits, retriever=retriever,
                   query_prefix=query_prefix, progress_every=progress_every,
                   out=out, extra_params=extra_params, vector=vector,
-                  reranker_inputs=reranker_inputs)
+                  reranker_inputs=reranker_inputs, target_hits=target_hits)
     print(f"  warming through all {len(ids)} queries once; these are discarded",
           file=out, flush=True)
     one_pass(app, ids, queries, judgements, label="warming", **common)
@@ -353,6 +361,11 @@ def main() -> int:
                          "are ranked")
     ap.add_argument("--mode", choices=("retrieval", "rerank"), default="retrieval")
     ap.add_argument("--hits", type=int, default=100)
+    ap.add_argument("--target-hits", type=int, default=None, metavar="N",
+                    help="how many nearest neighbours the vector arm asks for, "
+                         "when that should differ from --hits (default: the "
+                         "same number) - a request that returns ten hits can "
+                         "still keep a union of four hundred candidates")
     ap.add_argument("--passes", type=int, default=3,
                     help="warm once (discarded), then this many measured "
                          "passes (Q4); quality comes from the first, p50/p95 "
@@ -394,6 +407,9 @@ def main() -> int:
 
     if args.passes < 1:
         raise SystemExit(f"--passes must be at least 1, got {args.passes}")
+    if args.target_hits is not None and args.target_hits < 1:
+        raise SystemExit(f"--target-hits must be at least 1, got {args.target_hits}")
+    target_hits = args.hits if args.target_hits is None else args.target_hits
 
     build = args.build or builds.latest()
 
@@ -406,14 +422,16 @@ def main() -> int:
     judgements = builds.load_judgements(build, args.split)
     print(f"{builds.describe(build)}\n"
           f"{len(queries)} {args.split} queries | {args.retriever} retrieval "
-          f"| profile {args.ranking} | hits {args.hits} | {args.passes} passes",
+          f"| profile {args.ranking} | hits {args.hits} | {args.passes} passes"
+          + (f" | targetHits {target_hits}" if target_hits != args.hits else ""),
           file=sys.stderr)
 
     results, client_ms_per_pass, vespa_ms = run(
         app, queries, judgements, ranking=args.ranking, mode=args.mode,
         hits=args.hits, retriever=args.retriever,
         query_prefix=args.query_prefix, extra_params=extra_params, vector=vector,
-        passes=args.passes, reranker_inputs=reranker_inputs)
+        passes=args.passes, reranker_inputs=reranker_inputs,
+        target_hits=args.target_hits)
 
     # A cutoff deeper than the hits a request returned is not a
     # measurement of that cutoff. A profile whose match-features are costly
@@ -448,6 +466,9 @@ def main() -> int:
         **deployed.stamp(),
         "mode": args.mode,
         "hits_requested": args.hits,
+        # The `targetHits` the vector arm asked for: `--target-hits` when
+        # given, otherwise the same number as `hits_requested`.
+        "target_hits": target_hits,
         # Rank-profile inputs sent with every query, if any. A weighted profile
         # measured under weights the report does not record is a number nobody
         # can reproduce.

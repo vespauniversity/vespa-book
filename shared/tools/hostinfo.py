@@ -49,16 +49,41 @@ def _memory_bytes() -> int | None:
     return None
 
 
+def runtime_product(context: str, name: str, operating_system: str) -> str:
+    """The product behind the Docker Engine API, read from what the client
+    and the daemon call themselves: the active context (`rancher-desktop`,
+    `desktop-linux`, `colima`, `podman-machine-default`, ...), the daemon's
+    `Name` and its `OperatingSystem`. Every cost figure in this book was
+    measured on Rancher Desktop; a report that says which runtime it ran on
+    lets a reader compare like with like."""
+    key = f"{context} {name} {operating_system}".lower()
+    if "rancher" in key:
+        return "Rancher Desktop"
+    if "desktop-linux" in key or "docker-desktop" in key or "docker desktop" in key:
+        return "Docker Desktop"
+    if "podman" in key:
+        return "Podman"
+    if "colima" in key:
+        return "Colima"
+    return "Docker Engine"
+
+
 def _docker() -> dict | None:
     try:
         out = subprocess.run(
-            ["docker", "info", "--format", "{{.NCPU}} {{.MemTotal}} {{.ServerVersion}}"],
+            ["docker", "info", "--format",
+             "{{.NCPU}}|{{.MemTotal}}|{{.ServerVersion}}|{{.Name}}|{{.OperatingSystem}}"],
             capture_output=True, text=True, timeout=10)
         if out.returncode:
             return None
-        ncpu, mem, ver = out.stdout.split()
+        ncpu, mem, ver, name, os_name = out.stdout.strip().split("|", 4)
+        ctx = subprocess.run(["docker", "context", "show"], capture_output=True,
+                             text=True, timeout=10)
+        context = ctx.stdout.strip() if ctx.returncode == 0 else ""
         return {"cpus": int(ncpu), "memory_gb": round(int(mem) / 1e9, 1),
-                "server_version": ver}
+                "server_version": ver,
+                "runtime": runtime_product(context, name, os_name),
+                "runtime_name": name, "runtime_os": os_name, "context": context}
     except Exception:
         return None
 

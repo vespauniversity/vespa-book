@@ -9,16 +9,21 @@ throughput that a hundred thousand documents is not an afternoon.
 
 The input is the JSONL a corpus build produces:
 
-    {"put":    "id:product:product::us_B01N0TQ0OH", "fields": {...}}
-    {"update": "id:product:product::us_B01N0TQ0OH", "fields": {"popularity": {"assign": 3}}}
+    {"put":    "id:us:product::B01N0TQ0OH", "fields": {...}}
+    {"update": "id:us:product::B01N0TQ0OH", "fields": {"popularity": {"assign": 3}}}
+
+(namespace `us`, the locale; document type `product`; the user-specified part
+is the bare ASIN, the same value as the document's `id` field).
 
 A `put` replaces the document; an `update` changes named fields and leaves the
-rest alone, which is how chapter 3 adds signals without reindexing the text.
+rest alone, which is how a later chapter fills a field after the feed without
+reindexing the text.
 
 **What this prints is a cost**, and one row of it: how long this feed took and
 how fast it went. It is our record of one machine at one moment - four CPUs
-given to Docker, no GPU, the host in the report - and not something a reader is
-asked to reproduce, because their machine decides the answer.
+given to the container runtime's VM, no GPU, the host in the report - and not
+something a reader is asked to reproduce, because their machine decides the
+answer.
 
 **One row, and no joiner.** The chapter used to show two or three feeds side by
 side in one table, and no single command can print that: no tool owns both
@@ -77,7 +82,7 @@ class Result:
 
 
 def parse_document_id(doc_id: str) -> tuple[str, str, str]:
-    """'id:product:product::us_B01N0TQ0OH' -> namespace, doctype, user id."""
+    """'id:us:product::B01N0TQ0OH' -> namespace, doctype, user id."""
     parts = doc_id.split(":")
     if len(parts) < 5 or parts[0] != "id":
         raise ValueError(f"not a Vespa document id: {doc_id!r}")
@@ -303,7 +308,7 @@ def main() -> int:
             "seconds": round(result.seconds, 1),
             "docs_per_second": round(result.ok / result.seconds) if result.seconds else None,
             "concurrency": args.concurrency,
-            # q06's gap (`probes/q06-feed-method/VERDICT.md`): these three were
+            # a gap the Phase-1 feed-method check found: these three were
             # each a flag that changed what ran without changing what the
             # report said, so a partial feed (`--limit`) and a full one could
             # write identical-looking reports apart from a smaller `documents`

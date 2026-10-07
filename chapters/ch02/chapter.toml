@@ -5,10 +5,8 @@ corpus_preset = "book"
 
 [bootstrap]
 # What ./bootstrap.sh runs when the index holds fewer documents than this.
-feed = '.venv/bin/python shared/tools/feed.py "$build_dir/products.jsonl" --limit "$want_docs"'
+feed = ".venv/bin/python chapters/ch02/smoke_test.py"
 documents = 2000
-# Run after feeding or reusing the existing documents. These checks never feed.
-smoke = '.venv/bin/python chapters/ch02/smoke_test.py --build "$build_dir" --limit "$want_docs"'
 
 [requirements]
 groups = ["base"]
@@ -27,6 +25,8 @@ shared = [
   "corpus.py",       # not imported by smoke_test.py: bootstrap.sh runs it as a subprocess
   "deployed.py",
   "feed.py",
+  "gains.py",        # imported by corpus.py
+  "hf.py",           # imported by corpus.py
   "hostinfo.py",
   "query.py",
 ]

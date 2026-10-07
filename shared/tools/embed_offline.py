@@ -23,7 +23,7 @@ this writes: `title_embedding`, the in-application field, sits outside
 supplies it. So this writes **partial updates against that second field**, not
 `put`s against the first:
 
-    {"update": "id:product:product::us_B01N0TQ0OH",
+    {"update": "id:us:product::B01N0TQ0OH",
      "fields": {"title_embedding_precomputed": {"assign": {"values": [...]}}}}
 
 which is the form `shared/tools/feed.py` already reads as an `update`
@@ -54,6 +54,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import builds     # noqa: E402
 from corpus import LOCALE  # noqa: E402
 import hostinfo   # noqa: E402
+from evaluate import QUERY_PREFIX  # noqa: E402  (the one definition of the query prefix)
 import deployed   # noqa: E402
 
 CACHE = Path(__file__).resolve().parents[2] / "shared" / "cache" / "models"
@@ -69,7 +70,9 @@ MODELS = {
         "model": "https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/onnx/model.onnx",
         "tokenizer": "https://huggingface.co/BAAI/bge-small-en-v1.5/raw/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json",
         "pooling": "cls", "doc_prefix": "",
-        "query_prefix": "Represent this sentence for searching relevant passages: ",
+        # Not a second copy: the string lives in evaluate.QUERY_PREFIX and is
+        # referenced here so an offline caller encodes queries the same way.
+        "query_prefix": QUERY_PREFIX,
     },
 }
 
@@ -192,21 +195,21 @@ def find_document_id(app, title: str, *, probe: int = 25) -> str:
                   query=title, hits=probe, ranking="default")
     for h in r.hits:
         if h.fields.get("title") == title:
-            # The document id is not the ESCI `id` field: corpus.py names a
-            # document `<locale>_<id>` (`us_B07L2V81VS`), and the document API
-            # wants that. Asking for the bare `id` returns an empty document
-            # and no error, which is how this was first written. `locale` is
-            # an attribute outside the summary, so it is taken from corpus.py,
-            # the one place that decides it.
-            return f"{LOCALE}_{h.fields.get('id')}"
+            # The `id` field is the ASIN, and corpus.py makes it the
+            # user-specified part of the document id as it is; the locale is
+            # the namespace, which `fetch_attribute` supplies.
+            return h.fields.get("id")
     raise SystemExit(
         f"no product titled {title!r} found in the top {probe} lexical hits; "
         f"--check needs an exact title from this corpus")
 
 
 def fetch_attribute(endpoint: str, product_id: str, field: str,
-                    session=None) -> list[float]:
+                    session=None, namespace: str = LOCALE) -> list[float]:
     """One attribute field's value for one document, via the document API.
+
+    `product_id` is the bare ASIN; the namespace is the locale (`corpus.py`
+    names a document `id:<locale>:product::<asin>`).
 
     `title_embedding` sits outside `document {}`, so nothing echoes it in a
     search response the way `evaluate.py` reads `matchfeatures` - no deployed
@@ -217,7 +220,7 @@ def fetch_attribute(endpoint: str, product_id: str, field: str,
     """
     import requests
     session = session or requests.Session()
-    url = (f"{endpoint.rstrip('/')}/document/v1/product/product/docid/"
+    url = (f"{endpoint.rstrip('/')}/document/v1/{namespace}/product/docid/"
           f"{product_id}?fieldSet=product:{field}")
     r = session.get(url, timeout=15)
     r.raise_for_status()

@@ -1,4 +1,4 @@
 # Ours, not the reader's: the declaration check and the test suite.
-# Installed only with `./setup.sh --tests`.
+# Installed only with `./bootstrap.sh chNN --tests`.
 -r base.txt
 pytest>=8.0.0
