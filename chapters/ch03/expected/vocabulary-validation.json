@@ -1,0 +1,79 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "none declared",
+  "split": "validation",
+  "ranking_profile": "bm25_tuned",
+  "hits": 100,
+  "method": "the query re-run restricted to the missed document; no hit means Vespa's own tokenisation and stemming find no shared term",
+  "relevant_found": 8156,
+  "relevant_missed": 4595,
+  "missed_with_no_matchable_term": 1128,
+  "share_unreachable_by_lexical_retrieval": 0.2455,
+  "share_of_all_relevant": 0.0885,
+  "missed_by_gain": {
+    "1.0": 2271,
+    "0.1": 2064,
+    "0.01": 260
+  },
+  "unmatchable_by_gain": {
+    "1.0": 560,
+    "0.1": 513,
+    "0.01": 55
+  },
+  "examples": [
+    {
+      "query": "talkback turtle beach",
+      "gain": 0.1,
+      "product": "YCS Basics Gaming Headset Chat Cable for PS4 And Xbox One Controllers"
+    },
+    {
+      "query": "tall wide reusable straw",
+      "gain": 0.1,
+      "product": "VEHHE 4pcs Pajitas de Metal Pajitas de Acero Inoxidable Pajitas para Beber Reutilizables 265mm con Cepillo de "
+    },
+    {
+      "query": "tall wide reusable straw",
+      "gain": 0.1,
+      "product": "Flathead Pajitas De Silicona Reutilizables Rectas (Juego De 10) - Compatible Con Un Vaso De 20 Onzas - Viene C"
+    },
+    {
+      "query": "tan extender lotion",
+      "gain": 0.1,
+      "product": "Australian Gold Forever After All Day Moisturizer - 22.0 oz"
+    },
+    {
+      "query": "tan extender lotion",
+      "gain": 0.1,
+      "product": "Devoted Creations Crown Of Gold - Luxury Skin Softening Hydrator 18.75 oz"
+    },
+    {
+      "query": "tan extender lotion",
+      "gain": 1.0,
+      "product": "Creative Lab Moist Hemp Bronzing Moisturizer, 18oz"
+    },
+    {
+      "query": "tarjeta gr\u00e1fica externa",
+      "gain": 1.0,
+      "product": "Razer Core X Chroma Aluminum External GPU Enclosure (eGPU): Compatible with Windows & MacOS Thunderbolt 3 Lapt"
+    },
+    {
+      "query": "tarjeta gr\u00e1fica externa",
+      "gain": 1.0,
+      "product": "Acer Nitro 5 Gaming Laptop, 9th Gen Intel Core i5-9300H, NVIDIA GeForce GTX 1650, 15.6\" Full HD IPS Display, 8"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-15T07:33:47Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

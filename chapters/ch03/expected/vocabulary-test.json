@@ -1,0 +1,79 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "none declared",
+  "split": "test",
+  "ranking_profile": "bm25_tuned",
+  "hits": 100,
+  "method": "the query re-run restricted to the missed document; no hit means Vespa's own tokenisation and stemming find no shared term",
+  "relevant_found": 11527,
+  "relevant_missed": 6132,
+  "missed_with_no_matchable_term": 1452,
+  "share_unreachable_by_lexical_retrieval": 0.2368,
+  "share_of_all_relevant": 0.0822,
+  "missed_by_gain": {
+    "1.0": 2830,
+    "0.1": 2981,
+    "0.01": 321
+  },
+  "unmatchable_by_gain": {
+    "1.0": 647,
+    "0.1": 726,
+    "0.01": 79
+  },
+  "examples": [
+    {
+      "query": "table top bandsaw for metal",
+      "gain": 1.0,
+      "product": "MILWAUKEE'S 6232-21 Deep Cut Band Saw W/Case (5619-20)"
+    },
+    {
+      "query": "talkbox keyboard",
+      "gain": 1.0,
+      "product": "Korg microKorg 37-Key Analog Modeling Synthesizer with Vocoder"
+    },
+    {
+      "query": "talkbox keyboard",
+      "gain": 0.1,
+      "product": "Korg, 0-Key Mixer Accessory (MONOTRONDUO)"
+    },
+    {
+      "query": "talkbox keyboard",
+      "gain": 1.0,
+      "product": "Roland JD-XI 37-Key Interactive Analog/Digital Crossover Synthesizer, Black"
+    },
+    {
+      "query": "talkbox keyboard",
+      "gain": 0.1,
+      "product": "AKAI Professional MPK MINI MKII LE White - Teclado Controlador MIDI USB Port\u00e1til con 25 Teclas, 8 Pads MPC, 8 "
+    },
+    {
+      "query": "talkbox keyboard",
+      "gain": 0.1,
+      "product": "MicroFreak"
+    },
+    {
+      "query": "tall plastic dresser",
+      "gain": 0.1,
+      "product": "Munchkin Diaper Change Organizer"
+    },
+    {
+      "query": "tangle free fishing pole",
+      "gain": 0.1,
+      "product": "Zebco Splash Boy's 402 Spin Cast Reel, Blue"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-15T07:34:06Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}
