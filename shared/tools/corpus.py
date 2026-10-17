@@ -61,6 +61,9 @@ VERSION = "v4"
 # part is the bare ASIN (`id:us:product::B01N0TQ0OH`); the `id` field inside
 # the document is the bare ASIN as before. A build.json without this value,
 # or with another, is older than the format and `verify` says to rebuild.
+# `verify` runs only on the build a chapter names (bootstrap.sh step 2); a
+# build made with another preset is neither checked nor rebuilt, so an old one
+# left under builds/ keeps whatever ids it was built with.
 ID_FORMAT = "locale-namespace"
 
 
