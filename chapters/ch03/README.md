@@ -4,6 +4,34 @@ This directory is the code for Chapter 3 of *Production AI Search with Vespa*. I
 
 The book explains what each step does and why. This page is the practical half: what to install, what to run, what you should see, and what to do when something goes wrong.
 
+## What is in this directory
+
+```
+chapters/ch03/
+├── app/                              the application package Vespa deploys
+│   ├── services.xml                  the container and content nodes, unchanged
+│   ├── schemas/
+│   │   ├── product.sd                Chapter 2's schema, plus enable-bm25 and title_grams
+│   │   └── product/                  one file per rank profile
+│   │       ├── random.profile        random order, the floor
+│   │       ├── default.profile       Chapter 2's nativeRank, unchanged
+│   │       ├── bm25_title.profile
+│   │       ├── bm25_all.profile
+│   │       ├── bm25_weighted.profile
+│   │       ├── bm25_tuned.profile    the chapter's final baseline
+│   │       ├── explained.profile     returns rank features with each hit
+│   │       └── bm25_k*_b*.profile    the fifteen k1 × b grid profiles
+│   └── search/query-profiles/
+│       └── default.xml               request defaults: hits, rank profile, timing
+├── chapter.toml                      what bootstrap.sh needs for this chapter
+├── compare.py                        renders the chapter's tables from the reports
+├── vocabulary_mismatch.py            counts relevant products with no matching term
+├── COMMANDS.md                       every command, as run for the book
+└── expected/                         the book's reference output
+```
+
+The feeder, the query tool and the evaluation tool are shared by every chapter and live in `shared/tools/`.
+
 ## What you need
 
 Nothing new since Chapter 2\.
@@ -160,34 +188,6 @@ Finally, the tables and comparison blocks the chapter prints, rendered from thos
 .venv/bin/python chapters/ch03/compare.py --block comparison --baseline test-bm25_title chapters/ch03/expected/test-bm25_title.json chapters/ch03/expected/test-default.json chapters/ch03/expected/test-bm25_weighted.json chapters/ch03/expected/test-bm25_tuned-k1only.json chapters/ch03/expected/test-bm25_tuned.json > chapters/ch03/expected/compare-test-comparison.block.md
 .venv/bin/python chapters/ch03/compare.py --block comparison --baseline test-bm25_tuned-k1only chapters/ch03/expected/test-bm25_tuned-k1only.json chapters/ch03/expected/test-bm25_tuned.json > chapters/ch03/expected/compare-test-boost.block.md
 ```
-
-## What is in this directory
-
-```
-chapters/ch03/
-├── app/                              the application package Vespa deploys
-│   ├── services.xml                  the container and content nodes, unchanged
-│   ├── schemas/
-│   │   ├── product.sd                Chapter 2's schema, plus enable-bm25 and title_grams
-│   │   └── product/                  one file per rank profile
-│   │       ├── random.profile        random order, the floor
-│   │       ├── default.profile       Chapter 2's nativeRank, unchanged
-│   │       ├── bm25_title.profile
-│   │       ├── bm25_all.profile
-│   │       ├── bm25_weighted.profile
-│   │       ├── bm25_tuned.profile    the chapter's final baseline
-│   │       ├── explained.profile     returns rank features with each hit
-│   │       └── bm25_k*_b*.profile    the fifteen k1 × b grid profiles
-│   └── search/query-profiles/
-│       └── default.xml               request defaults: hits, rank profile, timing
-├── chapter.toml                      what bootstrap.sh needs for this chapter
-├── compare.py                        renders the chapter's tables from the reports
-├── vocabulary_mismatch.py            counts relevant products with no matching term
-├── COMMANDS.md                       every command, as run for the book
-└── expected/                         the book's reference output
-```
-
-The feeder, the query tool and the evaluation tool are shared by every chapter and live in `shared/tools/`.
 
 ## If something goes wrong
 
