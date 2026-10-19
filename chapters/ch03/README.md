@@ -109,6 +109,18 @@ These are for exploring; the book does not measure them, and nothing in `expecte
 
 When you override a boost weight, use the full form, `--param 'input.query(w_qcomplete)=3'`. A bare `--param w_qcomplete=3` is accepted without an error but does not set the input, so the rank profile keeps its default value.
 
+Every `evaluate.py` command is built from the same options:
+
+| Option | What it does |
+| :---- | :---- |
+| `--split` | Which set of judged queries to run: `validation` (735 queries) or `test` (1,050 queries). The corpus build holds a separate query file and judgement file for each split, and the option picks which pair is used. All 101,341 products are searched every time; only the queries, and the judgements they are scored against, change. The book tunes on `validation` and runs `test` only to report the chosen settings. A third split, `train` (1,715 queries), is used by later chapters. The option has no default, so you cannot score against the test queries by accident. |
+| `--ranking` | The rank profile to score with, such as `bm25_title` or `bm25_tuned`. |
+| `--hits 100` | Keeps the top 100 results for each query, which is what recall@100 needs. |
+| `--passes 3` | Runs the whole query set three times after one discarded warm-up pass, so that latency can be reported. `random` uses `--passes 1`, because its order changes on every pass. |
+| `--param` | Sets a rank-profile input for every request in the run, such as a boost weight. |
+| `--label` | The name the run is given in reports and tables, such as `validation-bm25_title`. |
+| `--out` | Where the run's report is saved, as a JSON file under `expected/`. Without it, the scores are printed but no report is saved. |
+
 ## Comparing your run with the book's
 
 `expected/` holds the output of every command the chapter quotes, exactly as it ran when the book was written, on a fresh run (`--fresh`). Two kinds of number are in there, and they behave differently:
@@ -118,7 +130,9 @@ When you override a boost weight, use the full form, `--param 'input.query(w_qco
 
 In the comparison blocks, each difference is followed by its bootstrap interval and a label: **real** when the interval excludes zero, **inside the noise** when it includes zero.
 
-To regenerate the files from your own run, use these forms; each one overwrites the file it names, and `git diff chapters/ch03/expected/` then shows the difference. First the feed, the two queries, and the evaluations on the validation split:
+To regenerate the files from your own run, use these forms; each one overwrites the file it names, and `git diff chapters/ch03/expected/` then shows the difference. Regenerating takes two steps. The commands in the first four blocks below query Vespa and save one report per run. The commands in the last block query nothing: they read those saved reports and print the tables the chapter shows.
+
+First, the feed, the two `running shoes` queries, and one evaluation per rank profile on the validation split. The last line runs `bm25_title` a second time, as `validation-bm25_title-tail`, to show that repeating a run gives the same scores:
 
 ```
 .venv/bin/python shared/tools/feed.py builds/esci-us-hard-book-s42-kdd-v4/products.jsonl --out chapters/ch03/expected/feed.json --label "ch03 full feed (re-feed onto the populated index)" > chapters/ch03/expected/feed.block.md
@@ -135,7 +149,7 @@ To regenerate the files from your own run, use these forms; each one overwrites 
 .venv/bin/python shared/tools/evaluate.py --split validation --hits 100 --passes 3 --ranking bm25_title    --label validation-bm25_title-tail --out chapters/ch03/expected/validation-bm25_title-tail.json
 ```
 
-The title plus one other field at a time:
+Next, the field-by-field runs. Each one scores the title at weight 1 and adds a single other field (description, bullets or brand), set through `bm25_weighted`'s query inputs, to show which field causes the drop:
 
 ```
 .venv/bin/python shared/tools/evaluate.py --split validation --hits 100 --passes 3 --ranking bm25_weighted --param 'input.query(w_title)=1' --param 'input.query(w_bullets)=0'   --param 'input.query(w_description)=0.5' --param 'input.query(w_brand)=0'    --label validation-bm25_weighted-t1-d05   --out chapters/ch03/expected/validation-bm25_weighted-t1-d05.json
@@ -143,7 +157,11 @@ The title plus one other field at a time:
 .venv/bin/python shared/tools/evaluate.py --split validation --hits 100 --passes 3 --ranking bm25_weighted --param 'input.query(w_title)=1' --param 'input.query(w_bullets)=0'   --param 'input.query(w_description)=0'   --param 'input.query(w_brand)=0.25' --label validation-bm25_weighted-t1-br025 --out chapters/ch03/expected/validation-bm25_weighted-t1-br025.json
 ```
 
-The k1 × b grid and the boost sweep:
+Next, the two tuning experiments.
+
+The first is the **k1 × b grid**. `k1` and `b` are BM25's two settings: `k1` controls how much repeated words in a title add to its score, and `b` controls how much a title's length affects it. The application package holds fifteen rank profiles, one for each combination of five `k1` values (0.6, 0.9, 1.2, 1.5, 2.0) and three `b` values (0.4, 0.75, 1.0). Each profile is named after its values, so `bm25_k06_b075` means `k1` 0.6 and `b` 0.75. The loop runs one evaluation per profile, fifteen in all, and saves fifteen reports.
+
+The second is the **boost sweep**. `bm25_tuned` adds two bonuses to the BM25 score: one when the title contains every query word (`w_qcomplete`), and one when a query word matches the brand (`w_brand`). A sweep runs the same profile several times with a different value each time; here, four runs, each setting the two weights through `--param`. Because the weights are query inputs, no redeployment is needed between runs.
 
 ```
 for k in 06 09 12 15 20; do
@@ -160,7 +178,7 @@ done
 .venv/bin/python shared/tools/evaluate.py --split validation --hits 100 --passes 3 --ranking bm25_tuned --param 'input.query(w_qcomplete)=5'  --param 'input.query(w_brand)=3' --label validation-bm25_tuned-qc5-brand3  --out chapters/ch03/expected/validation-bm25_tuned-qc5-brand3.json
 ```
 
-The test split, and the vocabulary counts:
+Next, the test split. These runs use the settings already chosen on validation, and are run once to report them. Then the vocabulary counts for both splits:
 
 ```
 .venv/bin/python shared/tools/evaluate.py --split test --hits 100 --passes 3 --ranking bm25_title    --label test-bm25_title    --out chapters/ch03/expected/test-bm25_title.json
@@ -174,7 +192,15 @@ The test split, and the vocabulary counts:
 .venv/bin/python chapters/ch03/vocabulary_mismatch.py --split test       --ranking bm25_tuned --out chapters/ch03/expected/vocabulary-test.json       > chapters/ch03/expected/vocabulary-test.block.md
 ```
 
-Finally, the tables and comparison blocks the chapter prints, rendered from those reports. `--baseline` names the run every other row is compared against; the baseline itself is not a row.
+Finally, the tables the chapter prints. `compare.py` does not query Vespa. It reads the JSON reports saved by the commands above and prints one table, which the redirect (`>`) saves as a `.block.md` file in `expected/`. `--block` chooses the kind of table:
+
+- `evaluations` — one row per run, with its ndcg@10, recall@10, recall@100 and mrr  
+- `comparison` — one line per run, showing how far it is above or below a chosen baseline run, with a bootstrap interval for each difference  
+- `grid` — the fifteen grid results laid out as a k1 × b table, each compared with Vespa's default setting, `bm25_k12_b075`  
+- `evaluations-latency` — the same runs' p50 and p95 latency  
+- `headline` — a single run's scores, and how far it is above the `random` floor
+
+`--baseline` names the run that every other run is compared against. For example, `--baseline validation-bm25_title` makes each line read as "this profile against `bm25(title)` alone". The baseline has no line of its own, because comparing it with itself would always give zero. If `--baseline` is left out, the first report on the command line is used.
 
 ```
 .venv/bin/python chapters/ch03/compare.py --block evaluations chapters/ch03/expected/validation-random.json chapters/ch03/expected/validation-default.json chapters/ch03/expected/validation-bm25_title.json chapters/ch03/expected/validation-bm25_all.json chapters/ch03/expected/validation-bm25_weighted.json chapters/ch03/expected/validation-bm25_tuned-k1only.json chapters/ch03/expected/validation-bm25_tuned.json > chapters/ch03/expected/compare-validation-evaluations.block.md
