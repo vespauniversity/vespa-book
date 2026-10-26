@@ -1,0 +1,113 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "validation",
+  "queries": 735,
+  "hits": 100,
+  "field": "title_embedding",
+  "note": "agreement is overlap with brute-force search, not relevance",
+  "rows": [
+    {
+      "setting": "exact",
+      "explore_additional_hits": null,
+      "agreement_at_10": 1.0,
+      "agreement_at_hits": 1.0,
+      "ndcg10": 0.4538,
+      "latency_ms": {
+        "mean": 15.14,
+        "p50": 14.86,
+        "p95": 17.35,
+        "p99": 19.79,
+        "max": 29.16
+      }
+    },
+    {
+      "setting": "hnsw+0",
+      "explore_additional_hits": 0,
+      "agreement_at_10": 0.9786,
+      "agreement_at_hits": 0.9113,
+      "ndcg10": 0.4509,
+      "latency_ms": {
+        "mean": 12.93,
+        "p50": 12.62,
+        "p95": 15.19,
+        "p99": 16.99,
+        "max": 26.92
+      }
+    },
+    {
+      "setting": "hnsw+20",
+      "explore_additional_hits": 20,
+      "agreement_at_10": 0.9824,
+      "agreement_at_hits": 0.928,
+      "ndcg10": 0.4514,
+      "latency_ms": {
+        "mean": 12.98,
+        "p50": 12.67,
+        "p95": 15.3,
+        "p99": 17.07,
+        "max": 27.18
+      }
+    },
+    {
+      "setting": "hnsw+100",
+      "explore_additional_hits": 100,
+      "agreement_at_10": 0.991,
+      "agreement_at_hits": 0.9612,
+      "ndcg10": 0.4534,
+      "latency_ms": {
+        "mean": 13.21,
+        "p50": 12.92,
+        "p95": 15.52,
+        "p99": 17.57,
+        "max": 27.33
+      }
+    },
+    {
+      "setting": "hnsw+500",
+      "explore_additional_hits": 500,
+      "agreement_at_10": 0.9967,
+      "agreement_at_hits": 0.9902,
+      "ndcg10": 0.4533,
+      "latency_ms": {
+        "mean": 14.2,
+        "p50": 13.96,
+        "p95": 16.47,
+        "p99": 18.53,
+        "max": 28.45
+      }
+    },
+    {
+      "setting": "hnsw+0",
+      "explore_additional_hits": 0,
+      "agreement_at_10": 0.9786,
+      "agreement_at_hits": 0.9113,
+      "ndcg10": 0.4509,
+      "latency_ms": {
+        "mean": 12.92,
+        "p50": 12.62,
+        "p95": 15.29,
+        "p99": 17.5,
+        "max": 26.77
+      }
+    }
+  ],
+  "latency_conditions": {
+    "warm": true,
+    "passes": 3
+  },
+  "host": {
+    "captured_at": "2026-09-15T14:36:59Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

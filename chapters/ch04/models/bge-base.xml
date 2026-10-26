@@ -1,0 +1,47 @@
+<!-- The comparison embedder. Measured once, by
+     `chapters/ch04/model_tradeoff.py --deploy-base`, and never shipped: the
+     book's one embedder stays BAAI/bge-small-en-v1.5. `model_tradeoff.py`
+     splices these three sections into a temporary copy of `chapters/ch04/app/`
+     **in place of** the small model's component, field and profile - not
+     beside them - so every number the comparison measures (feed seconds,
+     settled memory, p50) is base alone, the same class of number the shipped
+     app's small numbers are. -->
+
+<!-- component: services.xml -->
+<component id="embedder_base" type="hugging-face-embedder">
+  <transformer-model url="https://huggingface.co/BAAI/bge-base-en-v1.5/resolve/a5beb1e3e68b9ab74eb54cfd186867f64f240e1a/onnx/model.onnx"/>
+  <tokenizer-model url="https://huggingface.co/BAAI/bge-base-en-v1.5/raw/a5beb1e3e68b9ab74eb54cfd186867f64f240e1a/tokenizer.json"/>
+  <pooling-strategy>cls</pooling-strategy>
+  <normalize>true</normalize>
+</component>
+
+<!-- field: schemas/product.sd -->
+field title_embedding_base type tensor<float>(x[768]) {
+  indexing: input title | embed embedder_base | attribute | index
+  attribute {
+    distance-metric: prenormalized-angular
+  }
+  index {
+    hnsw {
+      max-links-per-node: 16
+      neighbors-to-explore-at-insert: 200
+    }
+  }
+}
+
+<!-- profile: schemas/product/semantic_base.profile -->
+rank-profile semantic_base {
+    # 768, not 384 - bge-base's width. Everything else here mirrors
+    # `semantic.profile`: the query vector still arrives as an input rather
+    # than being computed per document.
+    inputs {
+        query(qb) tensor<float>(x[768])
+    }
+    first-phase {
+        expression: closeness(field, title_embedding_base)
+    }
+    match-features {
+        closeness(field, title_embedding_base)
+        distance(field, title_embedding_base)
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "source": "products.jsonl",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder_base=BAAI/bge-base-en-v1.5@a5beb1e3",
+  "documents": 101341,
+  "failed": 0,
+  "retried": 0,
+  "seconds": 1511.1,
+  "docs_per_second": 67,
+  "concurrency": 16,
+  "batch_size": 128,
+  "limit": null,
+  "label": "bge-base full feed (comparison, measured once)",
+  "host": {
+    "captured_at": "2026-09-15T15:03:48Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

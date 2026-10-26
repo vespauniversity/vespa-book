@@ -1,0 +1,52 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "validation",
+  "hits": 100,
+  "relevant_products": 12751,
+  "found_by_both": 7242,
+  "found_by_keyword_only": 916,
+  "found_by_vector_only": 1613,
+  "found_by_neither": 2980,
+  "share_found_by_either": 0.7663,
+  "examples_only_vector_found": [
+    {
+      "query": "1.5 web belts for men without buket",
+      "product": "Belt for buckle men Snap on Strap Full Grain One Piece Leather no buckle,1 1/2\" Wide, Made in USA, B"
+    },
+    {
+      "query": "1.5 web belts for men without buket",
+      "product": "Nylon Belts for Men, Military Tactical Belt with YKK Plastic Buckle, Durable Breathable Canvas Belt "
+    },
+    {
+      "query": "tall wide reusable straw",
+      "product": "SHAKA LOVE Reusable Bamboo Drinking Straw Set 6 Inch | 100% Natural, Biodegradable, Eco, Organic | C"
+    },
+    {
+      "query": "tan extender lotion",
+      "product": "Millennium Tanning Products: Dark Tanning Lotion, 100x, 13.5 Fl Oz"
+    },
+    {
+      "query": "tan extender lotion",
+      "product": "Bondi Sands Everyday Gradual Tanning Milk | Lasting, Tanning Body Moisturizer Enriched With Aloe Ver"
+    },
+    {
+      "query": "teacher pencil cup",
+      "product": "Personalized Pencil, Crayon, Marker. Glitter Tumblers"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-15T14:27:58Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

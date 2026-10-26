@@ -1,0 +1,43 @@
+[chapter]
+number = 4
+title = "Semantic Search and the Tensor Model"
+corpus_preset = "book"
+
+[bootstrap]
+# What ./bootstrap.sh runs when the index holds fewer documents than this, or
+# when none of them carries the vector field yet: chapter 3 left the same
+# 101,341 documents in the container, and this chapter's vectors are computed
+# when a document is fed, so continuing from chapter 3 still feeds once.
+feed = ".venv/bin/python shared/tools/feed.py --out chapters/ch04/expected/feed.json"
+documents = 101341
+requires_field = "title_embedding"
+
+[requirements]
+# embed_offline.py runs the model outside Vespa: onnxruntime and
+# tokenizers, which base does not carry.
+groups = ["base", "embed"]
+
+[tools]
+# The shared tools this chapter ships. A publish copies the union of these
+# lists, so a name missing from every chapter's is a script a reader is told to
+# run and does not have.
+#
+# A list, not something worked out at publish time: a closure computed there is
+# wrong quietly. This list was itself seeded from such a closure and came out
+# one name short, because the closure matched `import x` and not `from x import
+# y` - which is how five of these are imported.
+shared = [
+  "builds.py",
+  "compare.py",
+  "corpus.py",
+  "deployed.py",
+  "embed_offline.py",
+  "evaluate.py",
+  "feed.py",
+  "gains.py",
+  "hf.py",
+  "hostinfo.py",
+  "memory.py",
+  "metrics.py",
+  "query.py",
+]

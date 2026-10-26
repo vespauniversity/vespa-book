@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<services version="1.0">
+
+  <!-- The container tier is stateless: it accepts documents, parses queries,
+       fans requests out to the content tier, and assembles what comes back. -->
+  <container id="default" version="1.0">
+    <!-- The embedding model runs here, in the stateless tier, both when
+         documents are fed and when a query arrives. It is part of the
+         application package, so it is versioned and deployed with everything
+         else. -->
+    <component id="embedder" type="hugging-face-embedder">
+      <transformer-model url="https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/onnx/model.onnx"/>
+      <tokenizer-model url="https://huggingface.co/BAAI/bge-small-en-v1.5/raw/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json"/>
+      <pooling-strategy>cls</pooling-strategy>
+      <normalize>true</normalize>
+    </component>
+    <document-api/>
+    <search/>
+    <nodes>
+      <node hostalias="node1"/>
+    </nodes>
+  </container>
+
+  <!-- The content tier holds the documents and does the matching and ranking
+       where the data already is, rather than moving candidates to compute. -->
+  <content id="content" version="1.0">
+    <min-redundancy>1</min-redundancy>
+    <documents>
+      <document type="product" mode="index"/>
+    </documents>
+    <nodes>
+      <node hostalias="node1" distribution-key="0"/>
+    </nodes>
+  </content>
+
+</services>

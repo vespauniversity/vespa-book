@@ -1,0 +1,52 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "test",
+  "hits": 100,
+  "relevant_products": 17659,
+  "found_by_both": 10216,
+  "found_by_keyword_only": 1313,
+  "found_by_vector_only": 2153,
+  "found_by_neither": 3977,
+  "share_found_by_either": 0.7748,
+  "examples_only_vector_found": [
+    {
+      "query": "table top bandsaw for metal",
+      "product": "4-1/2\" Metal Cutting Band Saw 4x6 Horizontal Vertical Band Saw"
+    },
+    {
+      "query": "table top bandsaw for metal",
+      "product": "MILWAUKEE'S 6232-21 Deep Cut Band Saw W/Case (5619-20)"
+    },
+    {
+      "query": "table top bandsaw for metal",
+      "product": "Makita 2107FZK 6.5 Amp Variable Speed Portable Band Saw with L.E.D. Light, Case and without Lock-On"
+    },
+    {
+      "query": "table top bandsaw for metal",
+      "product": "WEN 3962T 3.5-Amp 10-Inch Two-Speed Band Saw with Stand and Worklight"
+    },
+    {
+      "query": "table top bandsaw for metal",
+      "product": "KAKA Industrial Metal Cutting Horizontal Band Saw 7\" x 12\" Capacity 1.5HP motor"
+    },
+    {
+      "query": "table top bandsaw for metal",
+      "product": "Klutch Metal Cutting Band Saw - 7in. x 12in. 1 1/2 HP, 115/230V"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-15T14:28:26Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

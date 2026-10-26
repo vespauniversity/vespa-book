@@ -1,0 +1,77 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "test",
+  "hits": 100,
+  "semantic_ranking": "semantic",
+  "retriever": "semantic",
+  "keyword_blind_spot": 1452,
+  "of_which_perfect_matches": 647,
+  "reached_at_depth": {
+    "100": 210,
+    "200": 284,
+    "400": 383
+  },
+  "share_at_depth": {
+    "100": 0.1446,
+    "200": 0.1956,
+    "400": 0.2638
+  },
+  "beyond_depth": 1069,
+  "perfect_matches_reached": 164,
+  "rank_median": 83,
+  "rank_best": 1,
+  "rank_worst": 397,
+  "examples": [
+    {
+      "query": "table top bandsaw for metal",
+      "rank": 65,
+      "grade": 1.0,
+      "product": "MILWAUKEE'S 6232-21 Deep Cut Band Saw W/Case (5619-20)"
+    },
+    {
+      "query": "talkbox keyboard",
+      "rank": 368,
+      "grade": 0.1,
+      "product": "Korg, 0-Key Mixer Accessory (MONOTRONDUO)"
+    },
+    {
+      "query": "tangle free fishing pole",
+      "rank": 220,
+      "grade": 0.1,
+      "product": "Zebco Splash Boy's 402 Spin Cast Reel, Blue"
+    },
+    {
+      "query": "architecture without architects",
+      "rank": 21,
+      "grade": 1.0,
+      "product": "Arquitectura sin arquitectos: Un breve introducci\u00f3n a la arquitectura sin pedrig\u00ed (Ensayo)"
+    },
+    {
+      "query": "testing strips glucose",
+      "rank": 98,
+      "grade": 0.01,
+      "product": "2 Years Diabetes Log Book: 2 Years Notebook record for track blood sugar for the monitor t"
+    },
+    {
+      "query": "tire claw",
+      "rank": 169,
+      "grade": 1.0,
+      "product": "Trimax TCL65 Wheel Chock Lock , Yellow/Red, 7.25in"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-15T14:29:46Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}
