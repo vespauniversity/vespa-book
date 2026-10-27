@@ -120,7 +120,7 @@ Then evaluate both lenses on the same judged queries. The options are the same a
 
 **What you should see:** ndcg@10 0.437 for `bm25_tuned` and 0.451 for `semantic` on validation; 0.443 and 0.454 on test.
 
-The tables in this section are built from those four reports by `shared/tools/compare.py`. It reads the saved reports and queries nothing; `--block` chooses the table, and `--baseline` names the run the others are compared against:
+Below commands read the saved reports and queries nothing; `--block` chooses the table, and `--baseline` names the run the others are compared against:
 
 ```
 .venv/bin/python shared/tools/compare.py chapters/ch04/expected/validation-bm25_tuned.json chapters/ch04/expected/validation-semantic.json --baseline validation-bm25_tuned --block evaluations > chapters/ch04/expected/compare-validation-evaluations.block.md
