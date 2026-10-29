@@ -1,0 +1,177 @@
+{
+  "baseline": "test-bm25_tuned",
+  "split": "test",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "host": {
+    "captured_at": "2026-09-20T04:54:13Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  },
+  "runs": {
+    "test-bm25_tuned": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3124,
+        "@100": 0.6437
+      },
+      "mrr": 0.7556,
+      "ndcg": {
+        "@10": 0.4425
+      },
+      "latency_ms": {
+        "mean": 4.33,
+        "p50": 4.13,
+        "p95": 5.65,
+        "p99": 8.81,
+        "max": 16.86
+      }
+    },
+    "test-hybrid_rrf": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3351,
+        "@100": 0.6832
+      },
+      "mrr": 0.7806,
+      "ndcg": {
+        "@10": 0.4697
+      },
+      "latency_ms": {
+        "mean": 14.85,
+        "p50": 14.6,
+        "p95": 18.08,
+        "p99": 23.52,
+        "max": 32.73
+      }
+    },
+    "test-hybrid_linear": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3445,
+        "@100": 0.6832
+      },
+      "mrr": 0.7842,
+      "ndcg": {
+        "@10": 0.4858
+      },
+      "latency_ms": {
+        "mean": 14.94,
+        "p50": 14.66,
+        "p95": 18.19,
+        "p99": 23.46,
+        "max": 33.1
+      }
+    },
+    "test-hybrid_starved": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3342,
+        "@100": 0.6498
+      },
+      "mrr": 0.7794,
+      "ndcg": {
+        "@10": 0.47
+      },
+      "latency_ms": {
+        "mean": 14.87,
+        "p50": 14.65,
+        "p95": 18.1,
+        "p99": 23.61,
+        "max": 33.03
+      }
+    },
+    "test-semantic": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3195,
+        "@100": 0.687
+      },
+      "mrr": 0.7478,
+      "ndcg": {
+        "@10": 0.4542
+      },
+      "latency_ms": {
+        "mean": 13.16,
+        "p50": 12.92,
+        "p95": 15.44,
+        "p99": 17.21,
+        "max": 23.6
+      }
+    }
+  },
+  "ndcg10_vs_baseline": {
+    "test-hybrid_linear": {
+      "delta": 0.043314726666666664,
+      "lo": 0.03293826285714285,
+      "hi": 0.05359961619047619,
+      "significant": true,
+      "n": 1050
+    },
+    "test-hybrid_starved": {
+      "delta": 0.027499514285714288,
+      "lo": 0.020305258095238095,
+      "hi": 0.034984129523809526,
+      "significant": true,
+      "n": 1050
+    },
+    "test-hybrid_rrf": {
+      "delta": 0.027265882857142855,
+      "lo": 0.019466826666666666,
+      "hi": 0.03519880285714286,
+      "significant": true,
+      "n": 1050
+    },
+    "test-semantic": {
+      "delta": 0.011740515238095238,
+      "lo": -0.0027320742857142844,
+      "hi": 0.026301655238095235,
+      "significant": false,
+      "n": 1050
+    }
+  },
+  "recall100_vs_baseline": {
+    "test-hybrid_linear": {
+      "delta": 0.03948745333333333,
+      "lo": 0.033351721904761905,
+      "hi": 0.046057744761904766,
+      "significant": true,
+      "n": 1050
+    },
+    "test-hybrid_starved": {
+      "delta": 0.006082688571428571,
+      "lo": 0.0030638238095238098,
+      "hi": 0.009434618095238096,
+      "significant": true,
+      "n": 1050
+    },
+    "test-hybrid_rrf": {
+      "delta": 0.03948745333333333,
+      "lo": 0.033351721904761905,
+      "hi": 0.046057744761904766,
+      "significant": true,
+      "n": 1050
+    },
+    "test-semantic": {
+      "delta": 0.04335327619047619,
+      "lo": 0.029328805714285713,
+      "hi": 0.05739757619047619,
+      "significant": true,
+      "n": 1050
+    }
+  }
+}

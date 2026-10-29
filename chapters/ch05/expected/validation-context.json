@@ -1,0 +1,54 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "validation",
+  "ranking": "hybrid_rrf",
+  "alpha": null,
+  "queries_with_an_exact_match": 735,
+  "rows": [
+    {
+      "products": 1,
+      "mean_bytes": 170,
+      "share_with_exact_match": 0.5238,
+      "dropped": 0
+    },
+    {
+      "products": 3,
+      "mean_bytes": 524,
+      "share_with_exact_match": 0.7143,
+      "dropped": 18
+    },
+    {
+      "products": 5,
+      "mean_bytes": 894,
+      "share_with_exact_match": 0.7646,
+      "dropped": 33
+    },
+    {
+      "products": 10,
+      "mean_bytes": 1826,
+      "share_with_exact_match": 0.8313,
+      "dropped": 62
+    },
+    {
+      "products": 20,
+      "mean_bytes": 3700,
+      "share_with_exact_match": 0.8789,
+      "dropped": 115
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-20T01:55:15Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

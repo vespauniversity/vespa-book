@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Defaults for every query, so a caller sends a query string rather than a
+     paragraph of parameters, and so changing a default is a deployment rather
+     than an edit in every client. -->
+<query-profile id="default">
+    <field name="hits">10</field>
+    <field name="ranking.profile">bm25_tuned</field>
+    <field name="presentation.timing">true</field>
+</query-profile>

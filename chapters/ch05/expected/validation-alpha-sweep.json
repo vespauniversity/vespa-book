@@ -1,0 +1,343 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "validation",
+  "hits": 100,
+  "baseline_alpha": 0.3,
+  "rows": [
+    {
+      "alpha": 0.0,
+      "ndcg10": 0.4572,
+      "recall100": 0.6694,
+      "vs_vector": null,
+      "vs_lexical": {
+        "delta": 0.017149763657856247,
+        "lo": 0.002500311002300825,
+        "hi": 0.031770490127068965,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": null,
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.7,
+        0.8
+      ]
+    },
+    {
+      "alpha": 0.2,
+      "ndcg10": 0.4752,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.018046634586089648,
+        "lo": 0.012326866166564044,
+        "hi": 0.023817771282977063,
+        "significant": true,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.035196398243945895,
+        "lo": 0.022925217287405524,
+        "hi": 0.04745565410279627,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.5,
+        0.6,
+        0.7
+      ]
+    },
+    {
+      "alpha": 0.3,
+      "ndcg10": 0.4811,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.023980882953458033,
+        "lo": 0.017014516059400103,
+        "hi": 0.031012027133135143,
+        "significant": true,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.041130646611314284,
+        "lo": 0.029474302637142333,
+        "hi": 0.05265588885493179,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.4,
+        0.5,
+        0.6
+      ]
+    },
+    {
+      "alpha": 0.4,
+      "ndcg10": 0.4823,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.025184800794814728,
+        "lo": 0.016746569575514965,
+        "hi": 0.03378423691289196,
+        "significant": true,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.042334564452670975,
+        "lo": 0.03178121566284157,
+        "hi": 0.05268886892721189,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.3,
+        0.5
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "ndcg10": 0.4794,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.0222300981696324,
+        "lo": 0.01196402513090569,
+        "hi": 0.032131191334271385,
+        "significant": true,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.03937986182748865,
+        "lo": 0.030171207354578775,
+        "hi": 0.048059611542253314,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.2,
+        0.3,
+        0.4
+      ]
+    },
+    {
+      "alpha": 0.6,
+      "ndcg10": 0.4761,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.018929767116045902,
+        "lo": 0.007175482977445855,
+        "hi": 0.030127631419818012,
+        "significant": true,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.03607953077390215,
+        "lo": 0.028351912340635388,
+        "hi": 0.0438203204312278,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.2,
+        0.3
+      ]
+    },
+    {
+      "alpha": 0.7,
+      "ndcg10": 0.4689,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.011793068256933168,
+        "lo": -0.0009696315887064187,
+        "hi": 0.02418077882500891,
+        "significant": false,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.028942831914789417,
+        "lo": 0.022879139952085004,
+        "hi": 0.0349769245550069,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.0,
+        0.2
+      ]
+    },
+    {
+      "alpha": 0.8,
+      "ndcg10": 0.4607,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": 0.0035718400040288508,
+        "lo": -0.01003347822388881,
+        "hi": 0.016583407006013278,
+        "significant": false,
+        "n": 735
+      },
+      "vs_lexical": {
+        "delta": 0.0207216036618851,
+        "lo": 0.015919286119245563,
+        "hi": 0.02557853295227646,
+        "significant": true,
+        "n": 735
+      },
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "indistinguishable_from": [
+        0.0
+      ]
+    },
+    {
+      "alpha": 1.0,
+      "ndcg10": 0.44,
+      "recall100": 0.6694,
+      "vs_vector": {
+        "delta": -0.017149763657856247,
+        "lo": -0.031770490127068965,
+        "hi": -0.002500311002300825,
+        "significant": true,
+        "n": 735
+      },
+      "vs_lexical": null,
+      "recall100_vs_vector": {
+        "delta": 0.0,
+        "lo": 0.0,
+        "hi": 0.0,
+        "significant": false,
+        "n": 735
+      },
+      "recall100_vs_lexical": null,
+      "indistinguishable_from": []
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-20T01:37:24Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  },
+  "baseline_repeat": {
+    "alpha": 0.3,
+    "ndcg10_first": 0.4811,
+    "ndcg10_last": 0.4811,
+    "delta": {
+      "delta": 0.0,
+      "lo": 0.0,
+      "hi": 0.0,
+      "significant": false,
+      "n": 735
+    }
+  }
+}

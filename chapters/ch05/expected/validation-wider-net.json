@@ -1,0 +1,55 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c",
+  "split": "validation",
+  "hits": 100,
+  "lexical_ranking": "bm25_tuned",
+  "semantic_ranking": "semantic",
+  "alpha": 0.3,
+  "vector_only_relevant_products": 1617,
+  "keyword_only_relevant_products": 917,
+  "rows": [
+    {
+      "profile": "hybrid_rrf",
+      "vector_only_in_top10": 36,
+      "vector_only_in_top100": 625,
+      "keyword_only_in_top10": 52,
+      "keyword_only_in_top100": 755
+    },
+    {
+      "profile": "hybrid_linear",
+      "vector_only_in_top10": 105,
+      "vector_only_in_top100": 625,
+      "keyword_only_in_top10": 55,
+      "keyword_only_in_top100": 755
+    },
+    {
+      "profile": "hybrid_starved",
+      "vector_only_in_top10": 22,
+      "vector_only_in_top100": 107,
+      "keyword_only_in_top10": 61,
+      "keyword_only_in_top100": 897
+    },
+    {
+      "profile": "semantic",
+      "vector_only_in_top10": 315,
+      "vector_only_in_top100": 1602,
+      "keyword_only_in_top10": 18,
+      "keyword_only_in_top100": 52
+    }
+  ],
+  "host": {
+    "captured_at": "2026-09-20T01:52:35Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}
