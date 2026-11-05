@@ -1,0 +1,61 @@
+[chapter]
+number = 6
+title = "Multi-Stage Ranking"
+corpus_preset = "book"
+
+[bootstrap]
+# What ./bootstrap.sh runs when the index holds fewer documents than this, or
+# when none of them carries the field named below yet. Chapter 5's end
+# state has all 101,341 documents with `title_embedding` populated; this
+# chapter adds three fields filled at indexing time (`colbert`, the per-token
+# tensor MaxSim reranks on, and `title_tokens` / `text_tokens`, the
+# cross-encoder's token ids for the title and the bullets),
+# so continuing from chapter 5 is a deploy followed by this chapter's one full
+# feed. A fresh container feeds once with all three components.
+#
+# `colbert` is a mapped int8 tensor with no HNSW index, so the bootstrap's
+# usual nearest-neighbour probe cannot see it. The probe below asks instead: one query
+# over every document under the funnel profile, one hit; `max_sim` is a
+# match-feature, computed for the returned hit whether or not the second phase
+# reranks it, and a zero means no document carries the field yet. The
+# cross-encoder is switched off for the probe (global phase 0) so the probe
+# costs two MaxSims over one document, not a model run.
+feed = ".venv/bin/python shared/tools/feed.py --out chapters/ch06/expected/feed.json"
+documents = 101341
+requires_field = "colbert"
+probe_profile = "phased"
+probe_feature = "max_sim"
+probe_params = [
+  "ranking.rerankCount=1",
+  "ranking.globalPhase.rerankCount=0",
+  'input.query(qt)=embed(colbert, "probe")',
+  'input.query(qt_cross)=embed(tokenizer, "probe")',
+]
+# The cross-encoder is declared in the schema by `file:` (Vespa rejects a
+# hyphen in the file name, so it is `cross_encoder.onnx`), which means the
+# bootstrap has to put the file under app/models/ before deploying: fetched
+# from the pinned Hugging Face commit and verified by sha256 (models.py).
+models = ["cross"]
+
+[requirements]
+groups = ["base", "embed"]
+
+[tools]
+# The shared tools this chapter ships. A publish copies the union of these
+# lists, so a name missing from every chapter's is a script a reader is told to
+# run and does not have. A name is added when this chapter's tools import it.
+shared = [
+  "builds.py",
+  "compare.py",
+  "corpus.py",
+  "deployed.py",
+  "evaluate.py",
+  "feed.py",
+  "gains.py",
+  "hf.py",
+  "hostinfo.py",
+  "memory.py",
+  "metrics.py",
+  "models.py",
+  "query.py",
+]

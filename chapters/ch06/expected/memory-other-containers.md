@@ -1,0 +1,5 @@
+# Settled memory on other containers
+
+`expected/memory.json` is the reading this chapter ships: a fresh container, bootstrapped with `./bootstrap.sh ch06 --fresh`, fed once, nothing else run — 1,274,443,184 bytes (1,274 MB). The README's sentence about a higher reading rests on `expected/memory-fed-twice.json` (`.block.md`): a container continued from chapter 5 — `./bootstrap.sh ch05 --fresh`, then `./bootstrap.sh ch06`, so its index was fed by both chapters — read with the same command once that bootstrap had finished, nothing else run: 1,788,354,856 bytes (1,788 MB), settled. Both readings were taken on 2026-10-22.
+
+Every reading in this file is `content.proton.documentdb.memory_usage.allocated_bytes.last` from the same command, `shared/tools/memory.py --settle 600 --rounds 3 --tolerance 0.01` (it settles when two readings ten minutes apart agree within 1%), on the same machine: Apple M4 Pro, a 4 CPU / 10 GB container VM (Rancher Desktop). A reader's own machine gives different numbers.
