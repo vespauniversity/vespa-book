@@ -31,6 +31,7 @@ chapters/ch06/
 ├── funnel_budget.py                    what each stage adds over the stage before it
 ├── features_log.py                     the rank-feature log, one row per judged pair
 ├── wider_net.py                        where the pairs only one retrieval side found end up
+├── scripts/bg_run.sh                   optional helper for running commands in the background
 ├── COMMANDS.md                         every command, as run for the book
 └── expected/                           the book's reference output
 ```
@@ -88,6 +89,23 @@ The steps below follow the chapter, section by section. Run them from the reposi
 Most commands save their result in `expected/`, replacing the book's copy of that file, so that `git diff chapters/ch06/expected/` shows how your run compares with the book's. To put the book's files back, run `git checkout chapters/ch06/expected/`.
 
 **Budget your time.** Every request in this chapter returns 400 hits, and a request that reaches the cross-encoder takes about a second on the reference machine. The sweeps that run the cross-encoder take hours. They are marked below.
+
+**Running long commands in the background.** The two long cross-encoder sweeps below also show an optional `bg_run` command. From the repository root, load the helper once in each terminal:
+
+```bash
+source chapters/ch06/scripts/bg_run.sh
+```
+
+To run any other command in the background, use `bg_run COMMAND [ARGUMENTS...]`. For commands with output redirection, use `bg_run bash -c 'COMMAND > output-file'` so the output is redirected inside the background job.
+
+The helper prints a folder under `logs/` with the job's output, PID and status. Replace the folder below with the one it prints:
+
+```bash
+tail -f logs/bg-XXXXXXXX/output.log
+cat logs/bg-XXXXXXXX/status.txt
+```
+
+`State: COMPLETED` with `Exit code: 0` means the command succeeded; `State: FAILED` means to check `output.log`. Wait for completion before rendering its table or starting the next measurement. Jobs survive a normal terminal or SSH disconnect; keep the host awake and Vespa running.
 
 **Two options appear on almost every command.**
 
@@ -187,6 +205,17 @@ The finer sweep around it:
 .venv/bin/python chapters/ch06/weight_sweep.py --split validation --input w_cross --values 0 0.3 0.5 0.7 1.0 --from chapters/ch06/expected/validation-weight-cross.json --block weight-sweep > chapters/ch06/expected/validation-weight-cross.block.md
 ```
 
+Alternatively, run the measurement in the background after sourcing the helper above, then run the `--from` command once it completes:
+
+```bash
+bg_run .venv/bin/python chapters/ch06/weight_sweep.py \
+  --split validation --input w_cross \
+  --values 0 0.3 0.5 0.7 1.0 \
+  --second 25 --global 10 --passes 1 \
+  --param 'input.query(w_sim)=0.002' \
+  --out chapters/ch06/expected/validation-weight-cross.json
+```
+
 **What you should see:** every non-zero weight beats 0.0, and 0.7 is the best row at 0.502. Against 0.7, the logit alone (1.0) changes NDCG@10 by −0.002 [−0.005, +0.001], an interval that includes zero. p50 stays between 944.6 and 947.0 ms for every weight, including 0.0: the cross-encoder still runs at `w_cross = 0`, so that row is not a baseline without the model.
 
 **How many candidates the cross-encoder reads.** Vary the global-phase count with the second phase off. The core sweep measures 0, 5 and 10:
@@ -203,6 +232,17 @@ The extended sweep adds 25. It is optional and took 3 hours 12 minutes on the re
 ```
 .venv/bin/python chapters/ch06/rerank_sweep.py --split validation --phase global --counts 0 5 10 25 --reference-count 10 --param 'input.query(w_sim)=0.002' --param 'input.query(w_cross)=0.7' --out chapters/ch06/expected/validation-rerank-cross-extended.json
 .venv/bin/python chapters/ch06/rerank_sweep.py --split validation --phase global --from chapters/ch06/expected/validation-rerank-cross-extended.json --block rerank-sweep > chapters/ch06/expected/validation-rerank-cross-extended.block.md
+```
+
+Alternatively, run this measurement in the background, then run the `--from` command once it completes:
+
+```bash
+bg_run .venv/bin/python chapters/ch06/rerank_sweep.py \
+  --split validation --phase global \
+  --counts 0 5 10 25 --reference-count 10 \
+  --param 'input.query(w_sim)=0.002' \
+  --param 'input.query(w_cross)=0.7' \
+  --out chapters/ch06/expected/validation-rerank-cross-extended.json
 ```
 
 **What you should see:** NDCG@10 0.482 at 0, 0.489 at 5, 0.495 at 10 and 0.511 at 25, each step a gain the interval confirms. p50 climbs from about 113 ms to 516 ms, 943 ms and 2,225 ms, roughly 81 to 85 ms for each added candidate. The 0, 5 and 10 rows of the two sweeps agree. The profile keeps 10, chosen for cost rather than at a plateau.
