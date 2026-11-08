@@ -1,0 +1,218 @@
+schema product {
+
+  document product {
+
+    # ESCI is multilingual. We index the US English subset, and telling Vespa
+    # the language up front is what makes tokenisation and stemming correct.
+    field locale type string {
+      indexing: "en" | set_language
+    }
+
+    # The ASIN. Only unique within a locale, which is why the document id
+    # carries the locale too. `rank: filter` because matching on an id should
+    # never contribute to a relevance score.
+    field id type string {
+      indexing: summary | index
+      rank: filter
+      match: word
+    }
+
+    # `index` makes a field searchable; `attribute` makes it available in
+    # memory for filtering, grouping and ranking. Fields the reader searches
+    # get an index; fields used to rank or filter get an attribute.
+    #
+    # `enable-bm25` is what chapter 2's schema was missing: it tells Vespa to
+    # keep the term statistics BM25 needs. Without it the feature exists but
+    # always returns zero, which is the kind of failure that looks like bad
+    # relevance rather than a missing setting.
+    field title type string {
+      indexing: summary | index
+      index: enable-bm25
+      match: text
+    }
+
+    # Bullet points, not description, are the body field here: 48.7% of this
+    # corpus has no description at all (build.json, documents_without_description
+    # 49,346 of 101,341); how many lack bullets is not counted, so no figure is
+    # claimed. Ranking a field that is absent half the time looks like it works
+    # and quietly scores nothing - which the untuned `default` profile
+    # (`schemas/product/default.profile`) still does, deliberately: it is the
+    # starting point chapter 3 tunes away from. An
+    # array because that is how the bullets arrive once split.
+    field bullets type array<string> {
+      indexing: summary | index
+      index: enable-bm25
+      match: text
+    }
+
+    field description type string {
+      indexing: summary | index
+      index: enable-bm25
+      match: text
+    }
+
+    field brand type string {
+      indexing: summary | index | attribute
+      index: enable-bm25
+      match: text
+    }
+
+    field color type string {
+      indexing: summary | index | attribute
+      index: enable-bm25
+      match: text
+    }
+
+    # Half the corpus has no description. Making its absence an explicit
+    # signal is better than letting later ranking expressions score an empty
+    # field and quietly conclude nothing.
+    field has_description type bool {
+      indexing: summary | attribute
+    }
+
+    # This is the field a reader fills from vectors computed outside Vespa.
+    # It sits inside `document {}`, unlike
+    # `title_embedding` below, because the feed supplies it directly rather
+    # than Vespa deriving it from another field. Left empty at deploy time;
+    # filled later by a partial update.
+    field title_embedding_precomputed type tensor<float>(x[384]) {
+      indexing: attribute
+      attribute {
+        distance-metric: prenormalized-angular
+      }
+    }
+
+  }
+
+  # BGE asks for a prefix on the query and nothing on the document, so nothing
+  # is prepended here - the query side carries it. Other models want the
+  # opposite: e5 marks both sides, MiniLM marks neither. Vespa applies none of
+  # them, and using the wrong one produces no error and no warning, only worse
+  # results. That is why the query side carries the prefix in one place
+  # (`evaluate.QUERY_PREFIX`).
+  field title_embedding type tensor<float>(x[384]) {
+    indexing: input title | embed embedder | attribute | index
+    attribute {
+      distance-metric: prenormalized-angular
+    }
+    index {
+      hnsw {
+        max-links-per-node: 16
+        neighbors-to-explore-at-insert: 200
+      }
+    }
+  }
+
+  # Late interaction: one vector per title token, quantised to sixteen bytes
+  # each, so a query is not compared against one document vector but against
+  # every token the title has. The comparison itself - each query token
+  # keeping its best match among the document's tokens - runs over the
+  # survivors of the first phase, and costs almost nothing per extra
+  # candidate. This field backs the second-phase expression that runs it,
+  # not an index, because there is no single vector here to look up.
+  field colbert type tensor<int8>(token{}, v[16]) {
+    indexing: input title | embed colbert | attribute
+  }
+
+  # A cross-encoder does not embed the document on its own; it reads the
+  # query and the document together and scores the pair. What can be
+  # precomputed ahead of query time is only the document's tokenised text,
+  # not a vector - this field is that tokenisation, held ready for the
+  # expression that pairs it with the query's tokens after results have been
+  # merged.
+  field title_tokens type tensor<float>(d0[96]) {
+    indexing: input title | embed tokenizer | attribute
+  }
+
+  # A cross-encoder reads the query and the document together, so what it is
+  # given to read decides what it can add: the title-only input
+  # (`title_tokens`, above) hands the model the title alone; this field hands
+  # the same model the bullets too - the title followed by the bullets joined
+  # with spaces. `title_tokens` is what chapter 6's title-only control
+  # (`phased_title`) and its negative example (`phased_replace`) read.
+  field text_tokens type tensor<float>(d0[256]) {
+    indexing: (input title || "") . " . " . (input bullets | join " ") | embed tokenizer | attribute
+  }
+
+  # The cross-encoder's model. Declared once for the whole schema: every
+  # profile that scores with it refers to this one declaration (`phased`,
+  # `phased_title` through inheritance, `phased_replace`, `features`). The
+  # `input_ids` / `token_type_ids` / `attention_mask` function names are what
+  # the model's own inputs bind to; they are defined per profile, because
+  # each profile decides for itself which field it hands the model to read
+  # (`title_tokens` or `text_tokens`, through a 96- or 320-token input
+  # window).
+  onnx-model cross {
+    file: models/cross_encoder.onnx
+    input input_ids: input_ids
+    input attention_mask: attention_mask
+    input token_type_ids: token_type_ids
+    output logits: logits
+  }
+
+  # This chapter's own two ONNX models, declared the same
+  # way as `cross` above but different in kind: `cross` is downloaded from a
+  # pinned Hugging Face commit (`docs/pins.md`) and reads two of this
+  # document's fields; these two are exported by this chapter's own
+  # `export_onnx.py` from a LightGBM model this chapter trained
+  # (`train_ltr.py`), and read no field directly - their `input` is a tensor
+  # a rank profile builds from already-computed rank features (the
+  # `ltr_input` / `ltr_input_global` functions in `ltr_second_onnx.profile` /
+  # `ltr_global_onnx.profile`). `output variable: variable` is not a name
+  # chosen here: `onnxmltools` names a LightGBM regressor's single output
+  # `variable` when the conversion does not ask for another one
+  # (`export_onnx.py`, confirmed against the deployed files with
+  # `onnxruntime`'s own `get_outputs()`).
+  #
+  # `models/onnx/`, not `models/` directly: Vespa
+  # auto-registers every file directly under an application's `models/`
+  # directory as a global model keyed by its basename with the extension
+  # stripped, so `ltr_second.onnx` and `ltr_second.json` (the file
+  # `lightgbm("ltr_second.json")` reads, `ltr_second.profile`) collide on
+  # the name `ltr_second` - a real deploy error (`vespa deploy`: "The models
+  # in .../ltr_second.onnx and .../ltr_second.json both resolve to the model
+  # name 'ltr_second'"), not a hypothetical one. Both `.onnx` files move one
+  # directory deeper to clear the collision; their file names and the seven
+  # `.json` files' names and locations are unchanged.
+  onnx-model ltr_second_onnx {
+    file: models/onnx/ltr_second.onnx
+    input input: ltr_input
+    output variable: variable
+  }
+
+  onnx-model ltr_global_onnx {
+    file: models/onnx/ltr_global.onnx
+    input input: ltr_input_global
+    output variable: variable
+  }
+
+  # What a query searches when it does not name a field.
+  fieldset default {
+    fields: title, bullets, description, brand, color
+  }
+
+  document-summary context {
+    # What a retrieval-augmented answer is built from. Three properties matter
+    # and none of them is "all the text we have": the id, so a claim can be
+    # traced back to a product; the title, so the answer can name it; and a
+    # snippet of the description chosen around the query's own terms rather
+    # than the whole description.
+    #
+    # `dynamic` is what makes the snippet query-dependent. Without it every
+    # product contributes its whole description, the same text for every
+    # query, which may say nothing about what the query asked for.
+    summary id {}
+    summary title {}
+    summary snippet {
+      source: description
+      dynamic
+    }
+  }
+
+  # A summary that returns only the id, for a caller that needs nothing else;
+  # this chapter's tools select `id` in their YQL instead.
+  document-summary minimal {
+    summary id {}
+  }
+
+}

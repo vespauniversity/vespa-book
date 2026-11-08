@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<services version="1.0">
+
+  <!-- The container tier is stateless: it accepts documents, parses queries,
+       fans requests out to the content tier, and assembles what comes back. -->
+  <container id="default" version="1.0">
+    <!-- The embedding model runs here, in the stateless tier, both when
+         documents are fed and when a query arrives. It is part of the
+         application package, so it is versioned and deployed with everything
+         else. -->
+    <component id="embedder" type="hugging-face-embedder">
+      <transformer-model url="https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/onnx/model.onnx"/>
+      <tokenizer-model url="https://huggingface.co/BAAI/bge-small-en-v1.5/raw/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer.json"/>
+      <pooling-strategy>cls</pooling-strategy>
+      <normalize>true</normalize>
+    </component>
+
+    <!-- The component above is the one retrieval embedder in this
+         application. The two components below are rerankers, not
+         retrievers: pinned add-ons that reorder a candidate set the
+         retrieval embedder and the keyword index already produced, never a
+         second way to find candidates. -->
+
+    <!-- Late interaction. One vector per query token, compared pairwise at
+         query time against a document's token vectors in the funnel
+         profile's second phase. Pin: colbert-ir/colbertv2.0 @
+         c1e84128e85ef755c096a95bdb06b47793b13acf (docs/pins.md). -->
+    <component id="colbert" type="colbert-embedder">
+      <transformer-model
+        url="https://huggingface.co/colbert-ir/colbertv2.0/resolve/c1e84128e85ef755c096a95bdb06b47793b13acf/model.onnx"/>
+      <tokenizer-model
+        url="https://huggingface.co/colbert-ir/colbertv2.0/raw/c1e84128e85ef755c096a95bdb06b47793b13acf/tokenizer.json"/>
+    </component>
+
+    <!-- The cross-encoder's tokeniser. It tokenises the query at request
+         time; the model itself is declared in the schema and reads the
+         local file under `app/models/` (see product.sd, the funnel
+         profile). Pin: cross-encoder/ms-marco-MiniLM-L6-v2 @
+         233902d25c440f23af6f7d6e94d2946bac0bee0a (docs/pins.md). -->
+    <component id="tokenizer" type="hugging-face-tokenizer">
+      <model url="https://huggingface.co/cross-encoder/ms-marco-MiniLM-L6-v2/raw/233902d25c440f23af6f7d6e94d2946bac0bee0a/tokenizer.json"/>
+    </component>
+
+    <document-api/>
+    <search/>
+    <nodes>
+      <node hostalias="node1"/>
+    </nodes>
+  </container>
+
+  <!-- The content tier holds the documents and does the matching and ranking
+       where the data already is, rather than moving candidates to compute. -->
+  <content id="content" version="1.0">
+    <min-redundancy>1</min-redundancy>
+    <documents>
+      <document type="product" mode="index"/>
+    </documents>
+    <nodes>
+      <node hostalias="node1" distribution-key="0"/>
+    </nodes>
+  </content>
+
+</services>

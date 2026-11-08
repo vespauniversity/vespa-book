@@ -1,0 +1,78 @@
+{
+  "baseline": "ltr_second",
+  "split": "validation",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-09-27T01:08:01Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  },
+  "runs": {
+    "ltr_second": {
+      "queries": 735,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3376,
+        "@100": 0.6982
+      },
+      "mrr": 0.7872,
+      "ndcg": {
+        "@10": 0.4951
+      },
+      "latency_ms": {
+        "mean": 92.02,
+        "p50": 91.28,
+        "p95": 101.12,
+        "p99": 109.4,
+        "max": 128.6
+      }
+    },
+    "ltr_second_tiny": {
+      "queries": 735,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3346,
+        "@100": 0.6943
+      },
+      "mrr": 0.7853,
+      "ndcg": {
+        "@10": 0.4924
+      },
+      "latency_ms": {
+        "mean": 91.89,
+        "p50": 91.14,
+        "p95": 101.18,
+        "p99": 111.05,
+        "max": 152.38
+      }
+    }
+  },
+  "ndcg10_vs_baseline": {
+    "ltr_second_tiny": {
+      "delta": -0.002661779591836737,
+      "lo": -0.006554731972789118,
+      "hi": 0.0011608108843537378,
+      "significant": false,
+      "n": 735
+    }
+  },
+  "recall100_vs_baseline": {
+    "ltr_second_tiny": {
+      "delta": -0.0039021292517006797,
+      "lo": -0.0067482761904761905,
+      "hi": -0.0009996394557823126,
+      "significant": true,
+      "n": 735
+    }
+  }
+}

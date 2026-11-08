@@ -1,0 +1,95 @@
+{
+  "baseline": "phased",
+  "split": "test",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-10-05T01:44:20Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3",
+      "runtime": "Rancher Desktop",
+      "runtime_name": "lima-rancher-desktop",
+      "runtime_os": "Alpine Linux v3.23",
+      "context": "rancher-desktop"
+    }
+  },
+  "runs": {
+    "phased": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3522,
+        "@100": 0.7055
+      },
+      "mrr": 0.7991,
+      "ndcg": {
+        "@10": 0.4993
+      },
+      "latency_ms": {
+        "mean": 949.66,
+        "p50": 948.37,
+        "p95": 964.7,
+        "p99": 979.01,
+        "max": 1042.56
+      },
+      "latency_conditions": {
+        "warm": true,
+        "warmup": "one pass over the whole query set, discarded",
+        "note": "Warm readings. The whole query set was run once and discarded before any pass was measured, so they describe a container whose index has already been touched. A cold container answers its first queries more slowly; this book does not measure by how much, or for how long.",
+        "passes": 3,
+        "per_pass_p50_ms": [
+          947.29,
+          948.37,
+          948.66
+        ]
+      }
+    },
+    "phased_h10": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3507
+      },
+      "mrr": 0.7958,
+      "ndcg": {
+        "@10": 0.498
+      },
+      "latency_ms": {
+        "mean": 986.43,
+        "p50": 983.19,
+        "p95": 1000.62,
+        "p99": 1034.13,
+        "max": 1679.67
+      },
+      "latency_conditions": {
+        "warm": true,
+        "warmup": "one pass over the whole query set, discarded",
+        "note": "Warm readings. The whole query set was run once and discarded before any pass was measured, so they describe a container whose index has already been touched. A cold container answers its first queries more slowly; this book does not measure by how much, or for how long.",
+        "passes": 1,
+        "per_pass_p50_ms": [
+          983.19
+        ]
+      }
+    }
+  },
+  "ndcg10_vs_baseline": {
+    "phased_h10": {
+      "delta": -0.001256790476190476,
+      "lo": -0.00447569142857143,
+      "hi": 0.0022485771428571435,
+      "significant": false,
+      "n": 1050
+    }
+  },
+  "recall100_vs_baseline": {
+    "phased_h10": null
+  }
+}

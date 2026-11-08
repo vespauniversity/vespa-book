@@ -1,0 +1,44 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "doctype": "product",
+  "documents": 101341,
+  "vectors_per_document": 1,
+  "dimensions": 384,
+  "bytes_per_cell": 4,
+  "predicted_vector_bytes": 155659776,
+  "allocated_bytes": 1274450237,
+  "settled": true,
+  "settle_seconds": 600,
+  "rounds": 3,
+  "tolerance": 0.01,
+  "readings_mb": [
+    1274,
+    1274
+  ],
+  "metrics": {
+    "content.proton.documentdb.memory_usage.allocated_bytes.last": 1274450237,
+    "content.proton.documentdb.disk_usage.last": 478790628,
+    "content.proton.transactionlog.disk_usage.last": 486896406,
+    "cluster-controller.resource_usage.max_memory_utilization.last": 0.0998765978232,
+    "cluster-controller.resource_usage.max_disk_utilization.last": 0.2075308922292
+  },
+  "host": {
+    "captured_at": "2026-10-22T10:40:28Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3",
+      "runtime": "Rancher Desktop",
+      "runtime_name": "lima-rancher-desktop",
+      "runtime_os": "Alpine Linux v3.23",
+      "context": "rancher-desktop"
+    }
+  }
+}

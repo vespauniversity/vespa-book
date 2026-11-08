@@ -1,0 +1,97 @@
+{
+  "baseline": "phased",
+  "split": "validation",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-09-23T02:20:05Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  },
+  "runs": {
+    "phased": {
+      "queries": 735,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3374,
+        "@100": 0.6904
+      },
+      "mrr": 0.8006,
+      "ndcg": {
+        "@10": 0.5023
+      },
+      "latency_ms": {
+        "mean": 954.74,
+        "p50": 947.26,
+        "p95": 970.23,
+        "p99": 982.07,
+        "max": 1041.99
+      }
+    },
+    "ltr_global": {
+      "queries": 735,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3386
+      },
+      "mrr": 0.785,
+      "ndcg": {
+        "@10": 0.4964
+      },
+      "latency_ms": {
+        "mean": 913.42,
+        "p50": 913.22,
+        "p95": 921.09,
+        "p99": 932.67,
+        "max": 953.62
+      }
+    },
+    "ltr_global_offline": {
+      "queries": 735,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3386
+      },
+      "mrr": 0.7907,
+      "ndcg": {
+        "@10": 0.497
+      },
+      "latency_ms": {
+        "mean": 913.7,
+        "p50": 913.49,
+        "p95": 921.98,
+        "p99": 931.38,
+        "max": 954.97
+      }
+    }
+  },
+  "ndcg10_vs_baseline": {
+    "ltr_global_offline": {
+      "delta": -0.005354025850340135,
+      "lo": -0.014842001360544217,
+      "hi": 0.0039745074829932,
+      "significant": false,
+      "n": 735
+    },
+    "ltr_global": {
+      "delta": -0.005879780952380953,
+      "lo": -0.015025187755102042,
+      "hi": 0.0032799673469387745,
+      "significant": false,
+      "n": 735
+    }
+  },
+  "recall100_vs_baseline": {
+    "ltr_global_offline": null,
+    "ltr_global": null
+  }
+}

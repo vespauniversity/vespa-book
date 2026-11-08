@@ -1,0 +1,130 @@
+{
+  "baseline": "phased",
+  "split": "test",
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-09-23T15:40:26Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  },
+  "runs": {
+    "phased": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3522,
+        "@100": 0.7055
+      },
+      "mrr": 0.7991,
+      "ndcg": {
+        "@10": 0.4993
+      },
+      "latency_ms": {
+        "mean": 949.66,
+        "p50": 948.37,
+        "p95": 964.7,
+        "p99": 979.01,
+        "max": 1042.56
+      }
+    },
+    "ltr_second": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3469,
+        "@100": 0.7129
+      },
+      "mrr": 0.7952,
+      "ndcg": {
+        "@10": 0.4937
+      },
+      "latency_ms": {
+        "mean": 92.71,
+        "p50": 92.19,
+        "p95": 103.35,
+        "p99": 110.57,
+        "max": 121.84
+      }
+    },
+    "ltr_global": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3458
+      },
+      "mrr": 0.8088,
+      "ndcg": {
+        "@10": 0.5037
+      },
+      "latency_ms": {
+        "mean": 914.17,
+        "p50": 913.71,
+        "p95": 925.3,
+        "p99": 937.39,
+        "max": 978.7
+      }
+    },
+    "ltr_global_onnx": {
+      "queries": 1050,
+      "skipped_no_relevant": 0,
+      "recall": {
+        "@10": 0.3458
+      },
+      "mrr": 0.8088,
+      "ndcg": {
+        "@10": 0.5037
+      },
+      "latency_ms": {
+        "mean": 921.14,
+        "p50": 919.74,
+        "p95": 933.36,
+        "p99": 952.8,
+        "max": 1127.05
+      }
+    }
+  },
+  "ndcg10_vs_baseline": {
+    "ltr_global_onnx": {
+      "delta": 0.004346353333333335,
+      "lo": -0.0021956495238095214,
+      "hi": 0.01132087142857143,
+      "significant": false,
+      "n": 1050
+    },
+    "ltr_global": {
+      "delta": 0.004346353333333335,
+      "lo": -0.0021956495238095214,
+      "hi": 0.01132087142857143,
+      "significant": false,
+      "n": 1050
+    },
+    "ltr_second": {
+      "delta": -0.005595705714285712,
+      "lo": -0.012516811428571428,
+      "hi": 0.0015254409523809544,
+      "significant": false,
+      "n": 1050
+    }
+  },
+  "recall100_vs_baseline": {
+    "ltr_global_onnx": null,
+    "ltr_global": null,
+    "ltr_second": {
+      "delta": 0.0074718790476190474,
+      "lo": 0.0018791180952380953,
+      "hi": 0.013073888571428572,
+      "significant": true,
+      "n": 1050
+    }
+  }
+}

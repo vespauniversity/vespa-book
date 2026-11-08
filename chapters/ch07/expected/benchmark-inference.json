@@ -1,0 +1,106 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "validation",
+  "model_file": "chapters/ch07/models_native/ltr_second.lgb",
+  "fetch_profile": "features_second",
+  "engine_profile": "ltr_second",
+  "candidates": [
+    10,
+    25,
+    100
+  ],
+  "queries": 735,
+  "limit": null,
+  "rows": [
+    {
+      "n": 10,
+      "fetch_ms": {
+        "p50": 71.323,
+        "p95": 75.744
+      },
+      "ship_score_ms": {
+        "p50": 2.463,
+        "p95": 3.745
+      },
+      "total_external_ms": {
+        "p50": 73.914,
+        "p95": 78.487
+      },
+      "engine_ms": {
+        "p50": 68.83,
+        "p95": 72.724
+      },
+      "bytes_per_request": {
+        "p50": 6270,
+        "p95": 6965
+      }
+    },
+    {
+      "n": 25,
+      "fetch_ms": {
+        "p50": 71.961,
+        "p95": 76.291
+      },
+      "ship_score_ms": {
+        "p50": 2.742,
+        "p95": 4.046
+      },
+      "total_external_ms": {
+        "p50": 74.869,
+        "p95": 79.359
+      },
+      "engine_ms": {
+        "p50": 69.72,
+        "p95": 73.639
+      },
+      "bytes_per_request": {
+        "p50": 15605,
+        "p95": 17209
+      }
+    },
+    {
+      "n": 100,
+      "fetch_ms": {
+        "p50": 77.442,
+        "p95": 82.605
+      },
+      "ship_score_ms": {
+        "p50": 2.006,
+        "p95": 3.504
+      },
+      "total_external_ms": {
+        "p50": 79.72,
+        "p95": 84.726
+      },
+      "engine_ms": {
+        "p50": 73.187,
+        "p95": 78.752
+      },
+      "bytes_per_request": {
+        "p50": 61264,
+        "p95": 67527
+      }
+    }
+  ],
+  "latency_conditions": {
+    "warm": true,
+    "passes": 3,
+    "mock_service_host": "the host machine, not the container VM",
+    "note": "Apple M4 Pro, a 4 CPU / 10 GB container VM (Rancher Desktop). The mock model service runs on the host, not inside the container VM."
+  },
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-09-23T02:57:47Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

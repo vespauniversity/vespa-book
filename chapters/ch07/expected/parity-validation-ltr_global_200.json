@@ -1,0 +1,304 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "validation",
+  "profile": "ltr_global_200",
+  "model_type": "global",
+  "feature": "ltr_score_global",
+  "offline_source": "native",
+  "model_file": {
+    "path": "chapters/ch07/models_native/ltr_global_200.lgb",
+    "sha256": "2a24dd9745833e6705476e7285f90a75f57bb4ff9ab1f5b2ed6bc8e7851453de",
+    "bytes": 101635
+  },
+  "onnx_file": null,
+  "features_csv": {
+    "path": "builds/esci-us-hard-book-s42-kdd-v4/features/features-validation.csv",
+    "sha256": "daa9581c0460fa309ddf87688f8ac8fe282cee3077534638d8f23650a60d6756",
+    "bytes": 8558174
+  },
+  "tolerance": 0.001,
+  "limit": null,
+  "queries": 735,
+  "rows_compared": 14926,
+  "missing_engine": [],
+  "missing_csv": [],
+  "vs_logged_features": {
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "count_beyond_tolerance": 0
+  },
+  "vs_engine_features": {
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0,
+    "count_beyond_tolerance": 0,
+    "columns_overridden": [
+      "lexical",
+      "vector",
+      "max_sim"
+    ],
+    "note": "computed only over the columns this profile exposes as match-features; the remaining columns keep the logged (train-time) value - LEDGER Findings, step 3"
+  },
+  "worst_rows": [
+    {
+      "query_id": "100035",
+      "product_id": "B01AWGY5FM",
+      "engine_score": -0.055529893052945395,
+      "offline_score_vs_logged": -0.055529893052945395,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 18.04530542554216,
+        "logged_csv_value": 18.045305252075195,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B0167JHK7S",
+      "engine_score": -0.3074815251855886,
+      "offline_score_vs_logged": -0.3074815251855886,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 20.794157718793848,
+        "logged_csv_value": 20.794157028198242,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B017HA44DY",
+      "engine_score": -0.8162275192266631,
+      "offline_score_vs_logged": -0.8162275192266631,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 8.591288425317646,
+        "logged_csv_value": 8.591288566589355,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B017HA45TC",
+      "engine_score": -0.8763514657649932,
+      "offline_score_vs_logged": -0.8763514657649932,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 8.591288425317646,
+        "logged_csv_value": 8.591288566589355,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B01FKMCNL6",
+      "engine_score": -0.8870617581509295,
+      "offline_score_vs_logged": -0.8870617581509295,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 9.291566670089868,
+        "logged_csv_value": 9.291566848754883,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B01MTF6RIV",
+      "engine_score": -0.4776094602563574,
+      "offline_score_vs_logged": -0.4776094602563574,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 8.591288425317646,
+        "logged_csv_value": 8.591288566589355,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B07HBHC39Y",
+      "engine_score": -0.8162275192266631,
+      "offline_score_vs_logged": -0.8162275192266631,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 8.591288425317646,
+        "logged_csv_value": 8.591288566589355,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "65958",
+      "product_id": "B07MN5GDY9",
+      "engine_score": 0.024875254974369692,
+      "offline_score_vs_logged": 0.024875254974369692,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 22.592480705548496,
+        "logged_csv_value": 22.59248161315918,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "66171",
+      "product_id": "B086JSWCKX",
+      "engine_score": -1.1410442241752177,
+      "offline_score_vs_logged": -1.1410442241752177,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 6.1762306313902595,
+        "logged_csv_value": 6.176230430603027,
+        "diff": 0.0
+      }
+    },
+    {
+      "query_id": "66171",
+      "product_id": "B086ZYD2KT",
+      "engine_score": -0.22702831836405635,
+      "offline_score_vs_logged": -0.22702831836405635,
+      "diff": 0.0,
+      "most_differing_exposed_feature": {
+        "name": "lexical",
+        "engine_value": 0.0,
+        "logged_csv_value": 0.0,
+        "diff": 0.0
+      }
+    }
+  ],
+  "rerank_count_params": {
+    "ranking.rerankCount": "per-query, equal to that query's judged-id count",
+    "ranking.globalPhase.rerankCount": "per-query, equal to that query's judged-id count (>= hits, so every returned hit was scored by the global phase)"
+  },
+  "shape_check": {
+    "pass": true,
+    "model_features": [
+      "title_score",
+      "bullets_score",
+      "description_score",
+      "brand_score",
+      "nativeRank",
+      "nativeFieldMatch",
+      "nativeProximity",
+      "nativeAttributeMatch",
+      "fieldMatch(title)",
+      "fieldMatch(title).proximity",
+      "fieldMatch(title).unweightedProximity",
+      "fieldMatch(title).absoluteProximity",
+      "fieldMatch(title).completeness",
+      "fieldMatch(title).queryCompleteness",
+      "fieldMatch(title).fieldCompleteness",
+      "fieldMatch(title).earliness",
+      "fieldMatch(title).longestSequence",
+      "fieldMatch(title).longestSequenceRatio",
+      "fieldMatch(title).orderness",
+      "fieldMatch(title).outOfOrder",
+      "fieldMatch(title).gaps",
+      "fieldMatch(title).gapLength",
+      "fieldMatch(title).head",
+      "fieldMatch(title).tail",
+      "fieldMatch(title).segments",
+      "fieldMatch(title).occurrence",
+      "fieldMatch(title).weightedOccurrence",
+      "fieldMatch(title).significantOccurrence",
+      "fieldMatch(title).significance",
+      "fieldMatch(title).importance",
+      "fieldMatch(title).relatedness",
+      "fieldMatch(title).matches",
+      "fieldMatch(description).completeness",
+      "fieldMatch(description).proximity",
+      "fieldMatch(description).earliness",
+      "elementCompleteness(bullets).completeness",
+      "elementCompleteness(bullets).queryCompleteness",
+      "elementCompleteness(bullets).fieldCompleteness",
+      "textSimilarity(title).score",
+      "textSimilarity(title).proximity",
+      "textSimilarity(title).order",
+      "textSimilarity(title).queryCoverage",
+      "textSimilarity(title).fieldCoverage",
+      "matches(title)",
+      "matches(bullets)",
+      "matches(description)",
+      "matches(brand)",
+      "queryTermCount",
+      "lexical",
+      "vector",
+      "max_sim",
+      "cross_logit"
+    ],
+    "expected_features": [
+      "title_score",
+      "bullets_score",
+      "description_score",
+      "brand_score",
+      "nativeRank",
+      "nativeFieldMatch",
+      "nativeProximity",
+      "nativeAttributeMatch",
+      "fieldMatch(title)",
+      "fieldMatch(title).proximity",
+      "fieldMatch(title).unweightedProximity",
+      "fieldMatch(title).absoluteProximity",
+      "fieldMatch(title).completeness",
+      "fieldMatch(title).queryCompleteness",
+      "fieldMatch(title).fieldCompleteness",
+      "fieldMatch(title).earliness",
+      "fieldMatch(title).longestSequence",
+      "fieldMatch(title).longestSequenceRatio",
+      "fieldMatch(title).orderness",
+      "fieldMatch(title).outOfOrder",
+      "fieldMatch(title).gaps",
+      "fieldMatch(title).gapLength",
+      "fieldMatch(title).head",
+      "fieldMatch(title).tail",
+      "fieldMatch(title).segments",
+      "fieldMatch(title).occurrence",
+      "fieldMatch(title).weightedOccurrence",
+      "fieldMatch(title).significantOccurrence",
+      "fieldMatch(title).significance",
+      "fieldMatch(title).importance",
+      "fieldMatch(title).relatedness",
+      "fieldMatch(title).matches",
+      "fieldMatch(description).completeness",
+      "fieldMatch(description).proximity",
+      "fieldMatch(description).earliness",
+      "elementCompleteness(bullets).completeness",
+      "elementCompleteness(bullets).queryCompleteness",
+      "elementCompleteness(bullets).fieldCompleteness",
+      "textSimilarity(title).score",
+      "textSimilarity(title).proximity",
+      "textSimilarity(title).order",
+      "textSimilarity(title).queryCoverage",
+      "textSimilarity(title).fieldCoverage",
+      "matches(title)",
+      "matches(bullets)",
+      "matches(description)",
+      "matches(brand)",
+      "queryTermCount",
+      "lexical",
+      "vector",
+      "max_sim",
+      "cross_logit"
+    ],
+    "mismatches": []
+  },
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-09-23T14:32:40Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

@@ -1,0 +1,378 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "train",
+  "model": "second",
+  "columns": [
+    "title_score",
+    "bullets_score",
+    "description_score",
+    "brand_score",
+    "nativeRank",
+    "nativeFieldMatch",
+    "nativeProximity",
+    "nativeAttributeMatch",
+    "fieldMatch(title)",
+    "fieldMatch(title).proximity",
+    "fieldMatch(title).unweightedProximity",
+    "fieldMatch(title).absoluteProximity",
+    "fieldMatch(title).completeness",
+    "fieldMatch(title).queryCompleteness",
+    "fieldMatch(title).fieldCompleteness",
+    "fieldMatch(title).earliness",
+    "fieldMatch(title).longestSequence",
+    "fieldMatch(title).longestSequenceRatio",
+    "fieldMatch(title).orderness",
+    "fieldMatch(title).outOfOrder",
+    "fieldMatch(title).gaps",
+    "fieldMatch(title).gapLength",
+    "fieldMatch(title).head",
+    "fieldMatch(title).tail",
+    "fieldMatch(title).segments",
+    "fieldMatch(title).occurrence",
+    "fieldMatch(title).weightedOccurrence",
+    "fieldMatch(title).significantOccurrence",
+    "fieldMatch(title).significance",
+    "fieldMatch(title).importance",
+    "fieldMatch(title).relatedness",
+    "fieldMatch(title).matches",
+    "fieldMatch(description).completeness",
+    "fieldMatch(description).proximity",
+    "fieldMatch(description).earliness",
+    "elementCompleteness(bullets).completeness",
+    "elementCompleteness(bullets).queryCompleteness",
+    "elementCompleteness(bullets).fieldCompleteness",
+    "textSimilarity(title).score",
+    "textSimilarity(title).proximity",
+    "textSimilarity(title).order",
+    "textSimilarity(title).queryCoverage",
+    "textSimilarity(title).fieldCoverage",
+    "matches(title)",
+    "matches(bullets)",
+    "matches(description)",
+    "matches(brand)",
+    "queryTermCount",
+    "lexical",
+    "vector",
+    "max_sim"
+  ],
+  "seed": 42,
+  "grid": [
+    {
+      "leaves": 3,
+      "rounds": 100,
+      "validation_ndcg10_offline": 0.7451
+    },
+    {
+      "leaves": 3,
+      "rounds": 200,
+      "validation_ndcg10_offline": 0.7479
+    },
+    {
+      "leaves": 3,
+      "rounds": 300,
+      "validation_ndcg10_offline": 0.7464
+    },
+    {
+      "leaves": 3,
+      "rounds": 800,
+      "validation_ndcg10_offline": 0.7437
+    },
+    {
+      "leaves": 7,
+      "rounds": 100,
+      "validation_ndcg10_offline": 0.7442
+    },
+    {
+      "leaves": 7,
+      "rounds": 200,
+      "validation_ndcg10_offline": 0.7457
+    },
+    {
+      "leaves": 7,
+      "rounds": 300,
+      "validation_ndcg10_offline": 0.7455
+    },
+    {
+      "leaves": 7,
+      "rounds": 800,
+      "validation_ndcg10_offline": 0.7415
+    },
+    {
+      "leaves": 15,
+      "rounds": 100,
+      "validation_ndcg10_offline": 0.7459
+    },
+    {
+      "leaves": 15,
+      "rounds": 200,
+      "validation_ndcg10_offline": 0.746
+    },
+    {
+      "leaves": 15,
+      "rounds": 300,
+      "validation_ndcg10_offline": 0.7456
+    },
+    {
+      "leaves": 15,
+      "rounds": 800,
+      "validation_ndcg10_offline": 0.7387
+    },
+    {
+      "leaves": 31,
+      "rounds": 100,
+      "validation_ndcg10_offline": 0.7423
+    },
+    {
+      "leaves": 31,
+      "rounds": 200,
+      "validation_ndcg10_offline": 0.7381
+    },
+    {
+      "leaves": 31,
+      "rounds": 300,
+      "validation_ndcg10_offline": 0.7386
+    },
+    {
+      "leaves": 31,
+      "rounds": 800,
+      "validation_ndcg10_offline": 0.7261
+    }
+  ],
+  "chosen_shape": {
+    "leaves": 3,
+    "rounds": 200
+  },
+  "validation_ndcg10": 0.7479,
+  "offline_judged_only": true,
+  "model_file": {
+    "path": "chapters/ch07/app/models/ltr_second_offline.json",
+    "sha256": "d1f6c31be241964ee235d28de638dd93fb46e98d468b2c1bfd598dfebb2aad15",
+    "bytes": 206417
+  },
+  "native_model_file": {
+    "path": "chapters/ch07/models_native/ltr_second_offline.lgb",
+    "sha256": "12f32cf7cf7e2e6c916ca2e8a396d55e65dd70a91e3ef67d924e13ecde3e827d",
+    "bytes": 101505
+  },
+  "feature_importance_gain": [
+    {
+      "feature": "vector",
+      "gain": 3592.8926664590836
+    },
+    {
+      "feature": "fieldMatch(title).completeness",
+      "gain": 1745.4727997779846
+    },
+    {
+      "feature": "max_sim",
+      "gain": 1507.004333972931
+    },
+    {
+      "feature": "brand_score",
+      "gain": 224.36491990089417
+    },
+    {
+      "feature": "textSimilarity(title).score",
+      "gain": 216.67826747894287
+    },
+    {
+      "feature": "fieldMatch(title)",
+      "gain": 199.84602880477905
+    },
+    {
+      "feature": "elementCompleteness(bullets).completeness",
+      "gain": 129.68349957466125
+    },
+    {
+      "feature": "nativeRank",
+      "gain": 98.38893914222717
+    },
+    {
+      "feature": "fieldMatch(title).head",
+      "gain": 93.8316707611084
+    },
+    {
+      "feature": "nativeProximity",
+      "gain": 90.1937792301178
+    },
+    {
+      "feature": "nativeFieldMatch",
+      "gain": 83.40118074417114
+    },
+    {
+      "feature": "fieldMatch(title).significance",
+      "gain": 82.48272037506104
+    },
+    {
+      "feature": "bullets_score",
+      "gain": 64.17105054855347
+    },
+    {
+      "feature": "textSimilarity(title).fieldCoverage",
+      "gain": 57.12655019760132
+    },
+    {
+      "feature": "fieldMatch(title).earliness",
+      "gain": 55.76445031166077
+    },
+    {
+      "feature": "fieldMatch(title).fieldCompleteness",
+      "gain": 53.20621919631958
+    },
+    {
+      "feature": "elementCompleteness(bullets).fieldCompleteness",
+      "gain": 46.18255949020386
+    },
+    {
+      "feature": "fieldMatch(title).gapLength",
+      "gain": 45.79291009902954
+    },
+    {
+      "feature": "lexical",
+      "gain": 42.17570972442627
+    },
+    {
+      "feature": "fieldMatch(title).tail",
+      "gain": 39.306989908218384
+    },
+    {
+      "feature": "fieldMatch(title).proximity",
+      "gain": 39.12592005729675
+    },
+    {
+      "feature": "title_score",
+      "gain": 34.821330547332764
+    },
+    {
+      "feature": "elementCompleteness(bullets).queryCompleteness",
+      "gain": 30.270639419555664
+    },
+    {
+      "feature": "fieldMatch(title).longestSequenceRatio",
+      "gain": 26.487899780273438
+    },
+    {
+      "feature": "fieldMatch(description).completeness",
+      "gain": 15.887979745864868
+    },
+    {
+      "feature": "fieldMatch(title).segments",
+      "gain": 13.280329942703247
+    },
+    {
+      "feature": "queryTermCount",
+      "gain": 12.831550121307373
+    },
+    {
+      "feature": "fieldMatch(title).occurrence",
+      "gain": 10.165129899978638
+    },
+    {
+      "feature": "description_score",
+      "gain": 8.748149871826172
+    },
+    {
+      "feature": "textSimilarity(title).proximity",
+      "gain": 8.371040105819702
+    },
+    {
+      "feature": "fieldMatch(title).importance",
+      "gain": 7.237599849700928
+    },
+    {
+      "feature": "fieldMatch(title).orderness",
+      "gain": 5.6115899085998535
+    },
+    {
+      "feature": "fieldMatch(title).gaps",
+      "gain": 5.294300079345703
+    },
+    {
+      "feature": "nativeAttributeMatch",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).unweightedProximity",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).absoluteProximity",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).queryCompleteness",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).longestSequence",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).outOfOrder",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).weightedOccurrence",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).significantOccurrence",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).relatedness",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(title).matches",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(description).proximity",
+      "gain": 0.0
+    },
+    {
+      "feature": "fieldMatch(description).earliness",
+      "gain": 0.0
+    },
+    {
+      "feature": "textSimilarity(title).order",
+      "gain": 0.0
+    },
+    {
+      "feature": "textSimilarity(title).queryCoverage",
+      "gain": 0.0
+    },
+    {
+      "feature": "matches(title)",
+      "gain": 0.0
+    },
+    {
+      "feature": "matches(bullets)",
+      "gain": 0.0
+    },
+    {
+      "feature": "matches(description)",
+      "gain": 0.0
+    },
+    {
+      "feature": "matches(brand)",
+      "gain": 0.0
+    }
+  ],
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "host": {
+    "captured_at": "2026-09-22T11:45:37Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

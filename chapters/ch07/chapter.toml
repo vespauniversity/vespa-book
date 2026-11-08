@@ -1,0 +1,72 @@
+[chapter]
+number = 7
+title = "Machine-Learned Ranking"
+corpus_preset = "book"
+
+[bootstrap]
+# This chapter adds no field (its models are files under app/models/), so
+# its own bootstrap start point is identical to ch06's end state - the probe
+# below is ch06's own, copied unchanged rather than re-derived, because
+# nothing about what a fresh container needs before this chapter's profiles
+# can answer a query has changed. Continuing from chapter 6 is a deploy with
+# no feed; a fresh container still feeds once with all three components,
+# same as ch06.
+#
+# `colbert` is a mapped int8 tensor with no HNSW index, so the default
+# nearest-neighbour probe cannot see it. The probe below asks instead: one query
+# over every document under the funnel profile, one hit; `max_sim` is a
+# match-feature, computed for the returned hit whether or not the second phase
+# reranks it, and a zero means no document carries the field yet. The
+# cross-encoder is switched off for the probe (global phase 0) so the probe
+# costs two MaxSims over one document, not a model run.
+feed = ".venv/bin/python shared/tools/feed.py --out chapters/ch07/expected/feed.json"
+documents = 101341
+requires_field = "colbert"
+probe_profile = "phased"
+probe_feature = "max_sim"
+probe_params = [
+  "ranking.rerankCount=1",
+  "ranking.globalPhase.rerankCount=0",
+  'input.query(qt)=embed(colbert, "probe")',
+  'input.query(qt_cross)=embed(tokenizer, "probe")',
+]
+# The cross-encoder is declared in the schema by `file:` (Vespa rejects a
+# hyphen in the file name, so it is `cross_encoder.onnx`), which means the
+# bootstrap has to put the file under app/models/ before deploying: fetched
+# from the pinned Hugging Face commit and verified by sha256 (models.py).
+# This chapter's own model files (`ltr_*.json`, `ltr_*.onnx`) are not fetched
+# by bootstrap - they are committed under `app/models/`, trained and exported
+# by `train_ltr.py` / `export_onnx.py` (COMMANDS.md), the same way the schema and
+# every profile is committed rather than generated at bootstrap time.
+models = ["cross"]
+
+[requirements]
+# `"ml"` is new here: lightgbm, onnxmltools, onnx,
+# onnxruntime, scikit-learn, skl2onnx - `shared/requirements/lock/ml.txt`,
+# needed by this chapter's own tools (`train_ltr.py`, `export_onnx.py`), not
+# by the deployed application, which only reads the model files they produced.
+groups = ["base", "embed", "ml"]
+
+[tools]
+# The shared tools this chapter ships. A publish copies the union of these
+# lists, so a name missing from every chapter's is a script a reader is told to
+# run and does not have. Same list as ch06's: this chapter's own tools
+# (`ltr_data.py`, `train_ltr.py`, `export_onnx.py`) import `builds`,
+# `deployed`, `gains` and `hostinfo`, already in it, and
+# `benchmark_inference.py` / `test_model_parity.py` import `query.py`'s
+# client, also already in it - nothing new to add.
+shared = [
+  "builds.py",
+  "compare.py",
+  "corpus.py",
+  "deployed.py",
+  "evaluate.py",
+  "feed.py",
+  "gains.py",
+  "hf.py",
+  "hostinfo.py",
+  "memory.py",
+  "metrics.py",
+  "models.py",
+  "query.py",
+]
