@@ -247,54 +247,6 @@ bg_run .venv/bin/python chapters/ch06/rerank_sweep.py \
 
 **What you should see:** NDCG@10 0.482 at 0, 0.489 at 5, 0.495 at 10 and 0.511 at 25, each step a gain the interval confirms. p50 climbs from about 113 ms to 516 ms, 943 ms and 2,225 ms, roughly 81 to 85 ms for each added candidate. The 0, 5 and 10 rows of the two sweeps agree. The profile keeps 10, chosen for cost rather than at a plateau.
 
-**What the cross-encoder is given to read.** `phased` and `phased_title` at their deployed defaults, both splits. No count or weight is passed; each profile's own defaults apply:
-
-```
-.venv/bin/python shared/tools/evaluate.py --split validation --retriever hybrid --ranking phased --hits 400 --reranker-input qt=colbert --reranker-input qt_cross=tokenizer --label phased --block headline --out chapters/ch06/expected/validation-phased.json > chapters/ch06/expected/validation-phased.block.md
-.venv/bin/python shared/tools/evaluate.py --split test --retriever hybrid --ranking phased --hits 400 --reranker-input qt=colbert --reranker-input qt_cross=tokenizer --label phased --block headline --out chapters/ch06/expected/test-phased.json > chapters/ch06/expected/test-phased.block.md
-.venv/bin/python shared/tools/evaluate.py --split validation --retriever hybrid --ranking phased_title --hits 400 --reranker-input qt=colbert --reranker-input qt_cross=tokenizer --label phased_title --block headline --out chapters/ch06/expected/validation-phased_title.json > chapters/ch06/expected/validation-phased_title.block.md
-.venv/bin/python shared/tools/evaluate.py --split test --retriever hybrid --ranking phased_title --hits 400 --reranker-input qt=colbert --reranker-input qt_cross=tokenizer --label phased_title --block headline --out chapters/ch06/expected/test-phased_title.json > chapters/ch06/expected/test-phased_title.block.md
-```
-
-Then the comparisons. The first command of each pair compares every profile with the first stage; the second compares `phased` with `phased_title` directly:
-
-```
-.venv/bin/python shared/tools/compare.py --block comparison --baseline first_stage --out chapters/ch06/expected/compare-validation-vs-first-stage.json chapters/ch06/expected/validation-bm25_tuned.json chapters/ch06/expected/validation-semantic.json chapters/ch06/expected/validation-hybrid_rrf.json chapters/ch06/expected/validation-hybrid_linear.json chapters/ch06/expected/validation-first_stage.json chapters/ch06/expected/validation-phased_title.json chapters/ch06/expected/validation-phased.json > chapters/ch06/expected/compare-validation-vs-first-stage.block.md
-.venv/bin/python shared/tools/compare.py --block comparison --baseline phased_title --out chapters/ch06/expected/compare-validation-phased-vs-title.json chapters/ch06/expected/validation-phased_title.json chapters/ch06/expected/validation-phased.json > chapters/ch06/expected/compare-validation-phased-vs-title.block.md
-.venv/bin/python shared/tools/compare.py --block comparison --baseline first_stage --out chapters/ch06/expected/compare-test-vs-first-stage.json chapters/ch06/expected/test-bm25_tuned.json chapters/ch06/expected/test-semantic.json chapters/ch06/expected/test-hybrid_rrf.json chapters/ch06/expected/test-hybrid_linear.json chapters/ch06/expected/test-first_stage.json chapters/ch06/expected/test-phased_title.json chapters/ch06/expected/test-phased.json > chapters/ch06/expected/compare-test-vs-first-stage.block.md
-.venv/bin/python shared/tools/compare.py --block comparison --baseline phased_title --out chapters/ch06/expected/compare-test-phased-vs-title.json chapters/ch06/expected/test-phased_title.json chapters/ch06/expected/test-phased.json > chapters/ch06/expected/compare-test-phased-vs-title.block.md
-```
-
-**What you should see:** against the first stage, `phased_title` changes NDCG@10 by +0.011 [+0.004, +0.019] on validation and +0.004 [−0.002, +0.010] on test; `phased` by +0.021 [+0.013, +0.028] and +0.010 [+0.004, +0.016]. Directly, `phased` beats `phased_title` by +0.009 [+0.006, +0.013] on validation and +0.006 [+0.003, +0.009] on test.
-
-### Three scores, one query: rank features and feature logging
-
-**Scores on three scales.** The worked query under four profiles:
-
-```
-.venv/bin/python shared/tools/query.py --query "running shoes" --retriever hybrid --ranking phased --hits 10 --block features --param 'input.query(qt)=embed(colbert, "running shoes")' --param 'input.query(qt_cross)=embed(tokenizer, "running shoes")' > chapters/ch06/expected/features-running-shoes-phased.block.md
-.venv/bin/python shared/tools/query.py --query "running shoes" --retriever hybrid --ranking phased_title --hits 10 --block features --param 'input.query(qt)=embed(colbert, "running shoes")' --param 'input.query(qt_cross)=embed(tokenizer, "running shoes")' > chapters/ch06/expected/features-running-shoes-phased_title.block.md
-.venv/bin/python shared/tools/query.py --query "running shoes" --retriever hybrid --ranking phased_replace --hits 10 --block features --param 'input.query(qt)=embed(colbert, "running shoes")' --param 'input.query(qt_cross)=embed(tokenizer, "running shoes")' > chapters/ch06/expected/features-running-shoes-phased_replace.block.md
-.venv/bin/python shared/tools/query.py --query "running shoes" --retriever hybrid --ranking hybrid_linear --hits 10 --param 'input.query(alpha)=0.3' --block features > chapters/ch06/expected/features-running-shoes-hybrid_linear.block.md
-```
-
-`query.py` has no `--reranker-input` option, so the two `--param` lines compute the same query representations directly.
-
-**What you should see:** under `phased`, the top hit is *Women's Running Shoes Lightweight Athletic Breathable Sport Air Cushion…* with relevance 0.893, and the Haforever listing is fourth. Across the ten hits, `lexical` runs from 11.4 to 12.3, `vector` from 0.80 to 0.82, and `max_sim` from 119 to 129. Under `phased_replace`, the relevance column is the cross-encoder's raw logit, 7.842 at rank one.
-
-**Logging rank features.** One feature log per split, then the summary table. This is the first time the book uses the training split:
-
-```
-.venv/bin/python chapters/ch06/features_log.py --split train --out chapters/ch06/expected/features-train.json
-.venv/bin/python chapters/ch06/features_log.py --split validation --out chapters/ch06/expected/features-validation.json
-.venv/bin/python chapters/ch06/features_log.py --split test --out chapters/ch06/expected/features-test.json
-.venv/bin/python chapters/ch06/features_log.py --from chapters/ch06/expected/features-train.json chapters/ch06/expected/features-validation.json chapters/ch06/expected/features-test.json --block features-log > chapters/ch06/expected/features-log.block.md
-```
-
-Each run writes one CSV row per judged query and product under `builds/esci-us-hard-book-s42-kdd-v4/features/`, a build file that is not part of the repository, and a JSON report under `expected/`. The cross-encoder runs on every logged pair, so these runs are not quick.
-
-**What you should see:** 35,019 judged pairs for train, 14,926 for validation and 21,503 for test, 56 columns in every row: four identifying the pair, its grade and how it was retrieved, then 52 rank features. The `sha256` column is your file's checksum and will differ from the book's while every count matches.
-
 ### Choosing rerank counts with quality and latency
 
 **Two curves, two reasons to stop.** Nothing new to run: the two curves are the second-phase and global-phase count sweeps above.
@@ -349,6 +301,21 @@ Each run writes one CSV row per judged query and product under `builds/esci-us-h
 As in Chapter 5, the tool recomputes the two sets at depth 100 on your container and says *vector-only* and *keyword-only* where the chapter says *semantic-only* and *lexical-only*. `--alpha 0.3` applies only to `hybrid_linear`.
 
 **What you should see** (test): 2,158 semantic-only and 1,303 lexical-only relevant pairs. In the top ten, `hybrid_rrf` places 25 and 79, `hybrid_linear` 112 and 80, and `phased` 75 and 138. All three place 799 and 1,098 in their top 100. On validation the sets are 1,623 and 908, and the top-ten counts are 36 and 41, 105 and 46, and 76 and 74.
+
+### Three scores, one query: rank features and feature logging
+
+**Logging rank features.** One feature log per split, then the summary table. This is the first time the book uses the training split:
+
+```
+.venv/bin/python chapters/ch06/features_log.py --split train --out chapters/ch06/expected/features-train.json
+.venv/bin/python chapters/ch06/features_log.py --split validation --out chapters/ch06/expected/features-validation.json
+.venv/bin/python chapters/ch06/features_log.py --split test --out chapters/ch06/expected/features-test.json
+.venv/bin/python chapters/ch06/features_log.py --from chapters/ch06/expected/features-train.json chapters/ch06/expected/features-validation.json chapters/ch06/expected/features-test.json --block features-log > chapters/ch06/expected/features-log.block.md
+```
+
+Each run writes one CSV row per judged query and product under `builds/esci-us-hard-book-s42-kdd-v4/features/`, a build file that is not part of the repository, and a JSON report under `expected/`. The cross-encoder runs on every logged pair, so these runs are not quick.
+
+**What you should see:** 35,019 judged pairs for train, 14,926 for validation and 21,503 for test, 56 columns in every row: four identifying the pair, its grade and how it was retrieved, then 52 rank features. The `sha256` column is your file's checksum and will differ from the book's while every count matches.
 
 ## Comparing your run with the book's
 
