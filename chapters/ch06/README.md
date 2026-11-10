@@ -247,7 +247,7 @@ bg_run .venv/bin/python chapters/ch06/rerank_sweep.py \
 
 **What you should see:** NDCG@10 0.482 at 0, 0.489 at 5, 0.495 at 10 and 0.511 at 25, each step a gain the interval confirms. p50 climbs from about 113 ms to 516 ms, 943 ms and 2,225 ms, roughly 81 to 85 ms for each added candidate. The 0, 5 and 10 rows of the two sweeps agree. The profile keeps 10, chosen for cost rather than at a plateau.
 
-### Choosing rerank counts with quality and latency
+### Evaluating Ranking Pipeline: Choosing rerank counts with quality and latency
 
 **Two curves, two reasons to stop.** Nothing new to run: the two curves are the second-phase and global-phase count sweeps above.
 
@@ -278,9 +278,9 @@ bg_run .venv/bin/python chapters/ch06/rerank_sweep.py \
 
 **What you should see:** about 1,430 MB on a container built with `./bootstrap.sh ch06 --fresh` and fed once. A container continued from Chapter 5, whose index has been fed by both chapters, reads higher; the book saw about 2,025 MB. Check that the report says `settled: true`.
 
-### The funnel on held-out queries
+### Evaluating the Ranking Pipeline on the Test Set
 
-**Every profile on both splits.** The quality tables, from the reports above:
+**Validation and Test Results”.**
 
 ```
 .venv/bin/python shared/tools/compare.py --block evaluations --out chapters/ch06/expected/compare-validation-evaluations.json chapters/ch06/expected/validation-bm25_tuned.json chapters/ch06/expected/validation-semantic.json chapters/ch06/expected/validation-hybrid_rrf.json chapters/ch06/expected/validation-hybrid_linear.json chapters/ch06/expected/validation-first_stage.json chapters/ch06/expected/validation-phased_title.json chapters/ch06/expected/validation-phased.json > chapters/ch06/expected/compare-validation-evaluations.block.md
@@ -289,7 +289,7 @@ bg_run .venv/bin/python chapters/ch06/rerank_sweep.py \
 
 **What you should see:** `phased` at 0.502 on validation and 0.499 on test; the first stage at 0.482 and 0.489. The gain over the first stage, from the comparison blocks above, is +0.021 on validation and +0.010 on test.
 
-**Who moved into the top ten.** For each split, the relevant pairs only one retrieval side found in its top 100, and where each profile places them:
+**Which Retrieved Products Reach the Top Ten.** For each split, the relevant pairs only one retrieval side found in its top 100, and where each profile places them:
 
 ```
 .venv/bin/python chapters/ch06/wider_net.py --split validation --profiles phased hybrid_linear hybrid_rrf semantic --alpha 0.3 --out chapters/ch06/expected/validation-wider-net.json
