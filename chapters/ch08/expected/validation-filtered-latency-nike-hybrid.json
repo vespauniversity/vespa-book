@@ -1,0 +1,49 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "build_documents": 101341,
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "split": "validation",
+  "queries": 735,
+  "rung": "nike",
+  "rung_clause": "tenant_id contains \"nike\"",
+  "rung_documents": 604,
+  "strategy": "default",
+  "strategy_params": null,
+  "retriever": "hybrid",
+  "hits": 100,
+  "agreement_denominator": "agreement@100 per query is |approximate hits \u2229 exact hits| / |exact hits|, not / hits requested: a rung with fewer than `hits` documents under it at all (small_brand, ten documents) cannot have a hundred correct answers to find, so the denominator is what the exact row itself returned for that query (ch04's ann_sweep.py convention).",
+  "rows": [
+    {
+      "retriever": "hybrid",
+      "explore": null,
+      "agreement_mean": null,
+      "agreement_min": null,
+      "algorithm": null,
+      "mean": 14.07,
+      "p50": 13.76,
+      "p95": 16.8,
+      "p99": 18.91,
+      "max": 30.36
+    }
+  ],
+  "latency_conditions": {
+    "warm": true,
+    "passes": 3,
+    "queries": 735,
+    "note": "Warm readings. The whole query set was run once and discarded before any pass was measured, so they describe a container whose index has already been touched. A cold container answers its first queries more slowly; this book does not measure by how much, or for how long."
+  },
+  "host": {
+    "captured_at": "2026-09-27T06:10:22Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

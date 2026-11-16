@@ -1,0 +1,66 @@
+[chapter]
+number = 8
+title = "Filtering, Constraints, and Access Control"
+corpus_preset = "book"
+
+[bootstrap]
+# This chapter adds one attribute, `tenant_id`, filled by a partial update
+# after the documents are in (`update` below) rather than by the feed itself,
+# and turns on `fast-search` for `has_description` (the change that asks for
+# a search-node restart). The feed and its probe are the previous chapter's,
+# unchanged: a fresh container still feeds every document with all three
+# embedding components, and `colbert` - a mapped int8 tensor with no HNSW
+# index - is the field the probe looks for (one query over every document
+# under the `phased` profile, one hit; `max_sim` is a match-feature, computed
+# for the returned hit whether or not the second phase reranks it, and a zero
+# means no document carries the field yet).
+#
+# A container that already holds the previous chapter's documents skips the
+# feed and runs only the update; a container that has neither runs both.
+feed = ".venv/bin/python shared/tools/feed.py --out chapters/ch08/expected/feed.json"
+documents = 101341
+requires_field = "colbert"
+probe_profile = "phased"
+probe_feature = "max_sim"
+probe_params = [
+  "ranking.rerankCount=1",
+  "ranking.globalPhase.rerankCount=0",
+  'input.query(qt)=embed(colbert, "probe")',
+  'input.query(qt_cross)=embed(tokenizer, "probe")',
+]
+# The seller each listing belongs to, derived from its brand by this
+# chapter's own tool and written into `tenant_id` as one partial update per
+# document. Runs when no document carries a value in that attribute.
+update_field = "tenant_id"
+update = ".venv/bin/python chapters/ch08/derive_tenants.py --out chapters/ch08/expected/tenants.json --users-out chapters/ch08/expected/users.json && .venv/bin/python shared/tools/feed.py builds/esci-us-hard-book-s42-kdd-v4/tenants.jsonl --out chapters/ch08/expected/feed-tenants.json"
+# The cross-encoder is declared in the schema by `file:` (Vespa rejects a
+# hyphen in the file name, so it is `cross_encoder.onnx`), which means the
+# bootstrap has to put the file under app/models/ before deploying: fetched
+# from the pinned Hugging Face commit and verified by sha256 (models.py).
+models = ["cross"]
+
+[requirements]
+# "ml" is dropped here: nothing this chapter runs trains or exports a model
+# - this chapter's tools only query the deployed schema and derive a field
+# from data already in the corpus.
+groups = ["base", "embed"]
+
+[tools]
+# The shared tools this chapter ships. A publish copies the union of these
+# lists, so a name missing from every chapter's is a script a reader is told to
+# run and does not have. A name is added when this chapter's tools import it.
+shared = [
+  "builds.py",
+  "compare.py",
+  "corpus.py",
+  "deployed.py",
+  "evaluate.py",
+  "feed.py",
+  "gains.py",
+  "hf.py",
+  "hostinfo.py",
+  "memory.py",
+  "metrics.py",
+  "models.py",
+  "query.py",
+]

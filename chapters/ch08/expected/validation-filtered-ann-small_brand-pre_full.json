@@ -1,0 +1,97 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "build_documents": 101341,
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "split": "validation",
+  "queries": 735,
+  "rung": "small_brand",
+  "rung_clause": "tenant_id contains \"20th century fox\"",
+  "rung_documents": 10,
+  "strategy": "pre_full",
+  "strategy_params": {
+    "ranking.matching.approximateThreshold": 0,
+    "ranking.matching.postFilterThreshold": 1.0,
+    "ranking.matching.filterFirstThreshold": 0
+  },
+  "retriever": "semantic",
+  "hits": 100,
+  "agreement_denominator": "agreement@100 per query is |approximate hits \u2229 exact hits| / |exact hits|, not / hits requested: a rung with fewer than `hits` documents under it at all (small_brand, ten documents) cannot have a hundred correct answers to find, so the denominator is what the exact row itself returned for that query (ch04's ann_sweep.py convention).",
+  "rows": [
+    {
+      "explore": 0,
+      "agreement_mean": 1.0,
+      "agreement_min": 1.0,
+      "queries": 735,
+      "queries_empty": 0,
+      "empty_query_ids": [],
+      "algorithm": "index top k using filter",
+      "mean": 47.4,
+      "p50": 47.23,
+      "p95": 49.81,
+      "p99": 52.09,
+      "max": 61.38
+    },
+    {
+      "explore": 20,
+      "agreement_mean": 1.0,
+      "agreement_min": 1.0,
+      "queries": 735,
+      "queries_empty": 0,
+      "empty_query_ids": [],
+      "algorithm": "index top k using filter",
+      "mean": 47.47,
+      "p50": 47.17,
+      "p95": 50.14,
+      "p99": 52.52,
+      "max": 62.3
+    },
+    {
+      "explore": 100,
+      "agreement_mean": 1.0,
+      "agreement_min": 1.0,
+      "queries": 735,
+      "queries_empty": 0,
+      "empty_query_ids": [],
+      "algorithm": "index top k using filter",
+      "mean": 47.27,
+      "p50": 47.14,
+      "p95": 49.77,
+      "p99": 51.9,
+      "max": 61.62
+    },
+    {
+      "explore": 500,
+      "agreement_mean": 1.0,
+      "agreement_min": 1.0,
+      "queries": 735,
+      "queries_empty": 0,
+      "empty_query_ids": [],
+      "algorithm": "index top k using filter",
+      "mean": 47.32,
+      "p50": 47.11,
+      "p95": 49.86,
+      "p99": 52.13,
+      "max": 62.81
+    }
+  ],
+  "latency_conditions": {
+    "warm": true,
+    "passes": 3,
+    "queries": 735,
+    "note": "Warm readings. The whole query set was run once and discarded before any pass was measured, so they describe a container whose index has already been touched. A cold container answers its first queries more slowly; this book does not measure by how much, or for how long."
+  },
+  "host": {
+    "captured_at": "2026-09-27T08:52:13Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

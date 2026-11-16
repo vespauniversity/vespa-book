@@ -1,0 +1,59 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "host": {
+    "captured_at": "2026-09-27T05:10:55Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  },
+  "documents": 101341,
+  "registry_summary": {
+    "tenant_count": 40337,
+    "singleton_tenant_count": 27342,
+    "marketplace_size": 5397,
+    "largest_brand": "nike",
+    "largest_brand_size": 604
+  },
+  "ladder": [
+    {
+      "rung": "has_description",
+      "clause": "has_description = true",
+      "documents": 51995,
+      "share": 0.5131
+    },
+    {
+      "rung": "has_brand",
+      "clause": "!(tenant_id contains \"__marketplace__\")",
+      "documents": 95944,
+      "share": 0.9467
+    },
+    {
+      "rung": "marketplace",
+      "clause": "tenant_id contains \"__marketplace__\"",
+      "documents": 5397,
+      "share": 0.0533
+    },
+    {
+      "rung": "nike",
+      "clause": "tenant_id contains \"nike\"",
+      "documents": 604,
+      "share": 0.006
+    },
+    {
+      "rung": "small_brand",
+      "clause": "tenant_id contains \"20th century fox\"",
+      "documents": 10,
+      "share": 0.0001
+    }
+  ],
+  "update_file": "builds/esci-us-hard-book-s42-kdd-v4/tenants.jsonl",
+  "update_lines_written": 101341
+}

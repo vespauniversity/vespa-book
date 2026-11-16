@@ -1,0 +1,178 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "split": "validation",
+  "queries": 735,
+  "hits": 10,
+  "users_file": "chapters/ch08/expected/users.json",
+  "rows": [
+    {
+      "user": "nike_staff",
+      "allowed_size": 1,
+      "retriever": "lexical",
+      "queries": 735,
+      "hits_returned": 4927,
+      "leaked": 0
+    },
+    {
+      "user": "nike_staff",
+      "allowed_size": 1,
+      "retriever": "semantic",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "nike_staff",
+      "allowed_size": 1,
+      "retriever": "hybrid",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "fox_staff",
+      "allowed_size": 1,
+      "retriever": "lexical",
+      "queries": 735,
+      "hits_returned": 396,
+      "leaked": 0
+    },
+    {
+      "user": "fox_staff",
+      "allowed_size": 1,
+      "retriever": "semantic",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "fox_staff",
+      "allowed_size": 1,
+      "retriever": "hybrid",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "marketplace_staff",
+      "allowed_size": 1,
+      "retriever": "lexical",
+      "queries": 735,
+      "hits_returned": 6635,
+      "leaked": 0
+    },
+    {
+      "user": "marketplace_staff",
+      "allowed_size": 1,
+      "retriever": "semantic",
+      "queries": 735,
+      "hits_returned": 6212,
+      "leaked": 0
+    },
+    {
+      "user": "marketplace_staff",
+      "allowed_size": 1,
+      "retriever": "hybrid",
+      "queries": 735,
+      "hits_returned": 7294,
+      "leaked": 0
+    },
+    {
+      "user": "agency",
+      "allowed_size": 3,
+      "retriever": "lexical",
+      "queries": 735,
+      "hits_returned": 5402,
+      "leaked": 0
+    },
+    {
+      "user": "agency",
+      "allowed_size": 3,
+      "retriever": "semantic",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "agency",
+      "allowed_size": 3,
+      "retriever": "hybrid",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "auditor",
+      "allowed_size": "*",
+      "retriever": "lexical",
+      "queries": 735,
+      "hits_returned": 7246,
+      "leaked": 0
+    },
+    {
+      "user": "auditor",
+      "allowed_size": "*",
+      "retriever": "semantic",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "auditor",
+      "allowed_size": "*",
+      "retriever": "hybrid",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 0
+    },
+    {
+      "user": "nike_staff",
+      "allowed_size": 1,
+      "retriever": "lexical",
+      "queries": 735,
+      "hits_returned": 4514,
+      "leaked": 4514,
+      "detection": true,
+      "forged_tenant": "adidas"
+    },
+    {
+      "user": "nike_staff",
+      "allowed_size": 1,
+      "retriever": "semantic",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 7350,
+      "detection": true,
+      "forged_tenant": "adidas"
+    },
+    {
+      "user": "nike_staff",
+      "allowed_size": 1,
+      "retriever": "hybrid",
+      "queries": 735,
+      "hits_returned": 7350,
+      "leaked": 7350,
+      "detection": true,
+      "forged_tenant": "adidas"
+    }
+  ],
+  "host": {
+    "captured_at": "2026-11-04T05:21:25Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3",
+      "runtime": "Rancher Desktop",
+      "runtime_name": "lima-rancher-desktop",
+      "runtime_os": "Alpine Linux v3.23",
+      "context": "rancher-desktop"
+    }
+  }
+}
