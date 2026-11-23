@@ -19,6 +19,12 @@ decision is the mistake this whole arrangement exists to prevent.
 
 **Every latency this prints is a warm reading**, and it says so wherever it
 prints one. See `WARM_NOTE`.
+
+The vector arm's depth is sent as `totalTargetHits`: the number of nearest
+neighbours asked for in total across the content nodes, not per node. It has a
+floor of 100 - a smaller value is answered with 100 neighbours (measured on the
+pinned build and on 8.781.11, 2026-11-04) - so for a depth below 100 here the
+engine finds at least 100.
 """
 from __future__ import annotations
 
@@ -86,7 +92,9 @@ def build_request(retriever: str, text: str, hits: int,
 
     `hits` is how many documents the request returns; the vector arm asks for
     that many nearest neighbours too unless `target_hits` says otherwise, so a
-    ten-hit request can still keep a union of hundreds of candidates.
+    ten-hit request can still keep a union of hundreds of candidates. The
+    number goes out as `totalTargetHits` (in total across the content nodes,
+    with a floor of 100: below 100 the engine finds 100).
 
     `vector_field`, `embedder` and `query_tensor` default to the book's one
     embedding setup. Chapter 4 compares setups — another model, or a vector over
@@ -99,7 +107,7 @@ def build_request(retriever: str, text: str, hits: int,
     embed = {f"input.query({query_tensor})": f'embed({embedder}, "{prefix}{text}")'}
     # Each annotated operator needs its own parentheses once it is combined
     # with anything else; without them YQL fails to parse at the `or`.
-    title_nn = "({targetHits:%d}nearestNeighbor(%s, %s))" % (
+    title_nn = "({totalTargetHits:%d}nearestNeighbor(%s, %s))" % (
         hits if target_hits is None else target_hits, vector_field, query_tensor)
     # Semantic retrieval is a nearest-neighbour search over title_embedding and
     # nothing else. Per-bullet vectors were built, measured and removed in
@@ -362,10 +370,12 @@ def main() -> int:
     ap.add_argument("--mode", choices=("retrieval", "rerank"), default="retrieval")
     ap.add_argument("--hits", type=int, default=100)
     ap.add_argument("--target-hits", type=int, default=None, metavar="N",
-                    help="how many nearest neighbours the vector arm asks for, "
-                         "when that should differ from --hits (default: the "
-                         "same number) - a request that returns ten hits can "
-                         "still keep a union of four hundred candidates")
+                    help="how many nearest neighbours the vector arm asks for "
+                         "(sent as totalTargetHits: in total across the content "
+                         "nodes; the engine finds at least 100), when that should "
+                         "differ from --hits (default: the same number) - a "
+                         "request that returns ten hits can still keep a union "
+                         "of four hundred candidates")
     ap.add_argument("--passes", type=int, default=3,
                     help="warm once (discarded), then this many measured "
                          "passes (Q4); quality comes from the first, p50/p95 "
@@ -423,7 +433,7 @@ def main() -> int:
     print(f"{builds.describe(build)}\n"
           f"{len(queries)} {args.split} queries | {args.retriever} retrieval "
           f"| profile {args.ranking} | hits {args.hits} | {args.passes} passes"
-          + (f" | targetHits {target_hits}" if target_hits != args.hits else ""),
+          + (f" | totalTargetHits {target_hits}" if target_hits != args.hits else ""),
           file=sys.stderr)
 
     results, client_ms_per_pass, vespa_ms = run(
@@ -466,8 +476,10 @@ def main() -> int:
         **deployed.stamp(),
         "mode": args.mode,
         "hits_requested": args.hits,
-        # The `targetHits` the vector arm asked for: `--target-hits` when
-        # given, otherwise the same number as `hits_requested`.
+        # The depth the vector arm asked for, sent as `totalTargetHits`
+        # (reports taken before 2026-11-04 sent it as `targetHits`; the key
+        # keeps its name because reports are read by it): `--target-hits`
+        # when given, otherwise the same number as `hits_requested`.
         "target_hits": target_hits,
         # Rank-profile inputs sent with every query, if any. A weighted profile
         # measured under weights the report does not record is a number nobody
