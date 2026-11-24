@@ -246,7 +246,7 @@ def main() -> int:
                          "document type is a separate documentdb with its "
                          "own memory/disk figures, not a slice of one "
                          "shared number. Default 'product' so every command "
-                         "already published is unchanged; ch10 also reads "
+                         "already published is unchanged; ch09 also reads "
                          "'user'")
     ap.add_argument("--build", type=Path, default=None,
                     help="a corpus build, to stamp the report with; default "

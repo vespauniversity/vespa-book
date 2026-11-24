@@ -34,12 +34,12 @@
 | 7 | a learned model beats the hand-tuned profile（隱含） | **執行後（ch07 step 6，2026-09-24）**：學到的 second phase 對第一階段 validation +0.013 [+0.005, +0.022] real / test +0.004 noise，rerank mode 兩 split real；學到的 funnel `ltr_global` 0.510 / 0.504 對 `phased` +0.008 / +0.004 noise、對第一階段 +0.028 / +0.014 real；形狀在引擎內選（3×100），offline 選的 3×200 在引擎 noise、31×800 −0.079；`cross_logit` 佔 57 % gain（log 修正後） | **成立但形式不同**：對第一階段贏在 validation、對手調 funnel 持平；原因是 log 只有判過的 pair（C3） | `chapters/ch07/README.md` *For the chapter text*；`expected/compare-{validation,test}-vs-{first-stage,phased}.block.md` |
 | 8 | filter selectivity, strategy, HNSW exploration affect recall and latency（What will you build） | **執行後（ch08 step 6，2026-09-27，D104）**：post 每階都輸、沒有交叉點；強迫 pre 在 <20% 整題空手（marketplace 99 / nike 557 / small brand 720 題 of 735；filter-first 走法）、exploration 無效；關 filter-first 全找回、2–4× 慢；預設 2% 以下退回 exact 全對且最便宜；5.3% 階夾在兩門檻之間最弱；101k 上 exact 每階 15–17 ms | **成立但形式不同**：不是 pre / post 二選一有交叉點，是 Vespa 兩個門檻決定三條路、中段最弱；ladder 是五個現有欄位條件 | `chapters/ch08/README.md` *For the chapter text*；`expected/validation-filtered-ann-summary-explore{0,500}.block.md` |
 | 8 | negative tests detect leakage（principle 3） | **執行後**：5 發明員工 × 3 retriever × 735 題漏出 0；偽造賣家 4,514 / 7,350 / 7,350 全漏（偵測列）；授權 filter 繼承 filter-first 的空手題（marketplace 員工向量查詢 7,350 可能命中回 6,279）；typed query profile 的 mandatory 值缺了就拒絕（D107） | **成立**：安全 ≠ 完整，兩件事各測 | `expected/leakage-validation.block.md`、`authorized-profile-missing-tenant.block.md` |
-| 10 | offline evaluation with Recall@K and NDCG（What will you build） | **執行後（ch10 step 6 / 5b，2026-09-28，D111）**：推薦 own recall@10/50/100 0.092 / 0.218 / 0.278，shuffled ≈ 0.001、popular ≈ 0.000–0.005，own 對 shuffled +0.091 / +0.216 / +0.276 real；搜尋：品牌分布 own = baseline = shuffled（兩層 noise）、上界 +0.045 real、顏色 +0.008 real、**脈絡向量 +0.039 real、對別人的向量 +0.075 real** | **成立但形式不同**：Recall@K 給推薦、NDCG 給搜尋，都帶 shuffled / popular 對照；有查詞時有用的是脈絡向量不是品牌分布（Phase 1 押錯訊號） | `chapters/ch10/README.md` *For the chapter text*；`expected/recommend-reporting-*.block.md`、`personalized-report.block.md`、`personalized-lexical-report.block.md` |
-| 10 | personalization is as much a freshness problem（principle 3） | **執行後**：ack → GET p50 2.4 ms、→ 推薦前十改變 p50 9.2 ms（50 users，ours）；快照日設計（2026-11-27，`--now` 預設快照、demo 新事件 = 快照 + 1 天）；前後前十示範、過期視窗退回 popular | **成立但形式不同**：可見時間量到、fresh 勝 stale 不量（順序是我們排的） | `expected/freshness.block.md`、`demo-generic-recommend-*.block.md` |
-| 10 | offline metrics biased by the logging policy（heading 7、principle 2） | **執行後**：無點擊日誌，反事實限制用例子講；本章的回答是 shuffled / popular 對照（用自己的贏過用別人的、贏過大家同一份）與「查詞級標籤看不到個人化」（上界 +0.045 對 own 0） | **成立但形式不同**：講不量，但對照列是可量的替代 | `chapters/ch10/README.md` *What it cannot do*；`expected/personalized-report.block.md` |
-| 11 | oracle vs retrieved quantifies the retrieval share of error（principle 2） | 872 題（D119 補充 1）、成功率半寬 ±0.033；已判斷池 + S ∪ E oracle（D119）；規則 agent 給正解必答對 → 退化（LEDGER F1）；正式來源改 LLM planner 一次紀錄（D117） | **成立但形式不同**（規則 = 天花板，LLM = 量測） | `probes/q11-multihop/VERDICT.md`、ch11 LEDGER F1 |
-| 11 | retrieving more can hurt（heading 3、principle 1） | hit@k 對 k 單調（LEDGER F2）→ 單一答案任務 + LLM 紀錄看方向；規則線只報成本面 precision@k / bytes（D117） | **待**（作者跑，D118） | Q11、ch11 LEDGER F2 |
-| 11 | human evaluation sets mislead once the caller is a model（heading 7、principle 3） | 統計量 A+B（D28）；agent 題庫 = 任何 trajectory log（D117） | **待**（作者跑，D118） | — |
+| 9 | offline evaluation with Recall@K and NDCG（What will you build） | **執行後（ch09 step 6 / 5b，2026-09-28，D111）**：推薦 own recall@10/50/100 0.092 / 0.218 / 0.278，shuffled ≈ 0.001、popular ≈ 0.000–0.005，own 對 shuffled +0.091 / +0.216 / +0.276 real；搜尋：品牌分布 own = baseline = shuffled（兩層 noise）、上界 +0.045 real、顏色 +0.008 real、**脈絡向量 +0.039 real、對別人的向量 +0.075 real** | **成立但形式不同**：Recall@K 給推薦、NDCG 給搜尋，都帶 shuffled / popular 對照；有查詞時有用的是脈絡向量不是品牌分布（Phase 1 押錯訊號） | `chapters/ch09/README.md`；`expected/recommend-reporting-*.block.md`、`personalized-report.block.md`、`personalized-lexical-report.block.md` |
+| 9 | personalization is as much a freshness problem（principle 3） | **執行後**：ack → GET p50 2.4 ms、→ 推薦前十改變 p50 9.2 ms（50 users，ours）；快照日設計（2026-11-27，`--now` 預設快照、demo 新事件 = 快照 + 1 天）；前後前十示範、過期視窗退回 popular | **成立但形式不同**：可見時間量到、fresh 勝 stale 不量（順序是我們排的） | `expected/freshness.block.md`、`demo-generic-recommend-*.block.md` |
+| 9 | offline metrics biased by the logging policy（heading 7、principle 2） | **執行後**：無點擊日誌，反事實限制用例子講；本章的回答是 shuffled / popular 對照（用自己的贏過用別人的、贏過大家同一份）與「查詞級標籤看不到個人化」（上界 +0.045 對 own 0） | **成立但形式不同**：講不量，但對照列是可量的替代 | `chapters/ch09/README.md`；`expected/personalized-report.block.md` |
+| 10 | oracle vs retrieved quantifies the retrieval share of error（principle 2） | 872 題（D119 補充 1）、成功率半寬 ±0.033；已判斷池 + S ∪ E oracle（D119）；規則 agent 給正解必答對 → 退化（LEDGER F1）；正式來源改 LLM planner 一次紀錄（D117） | **成立但形式不同**（規則 = 天花板，LLM = 量測） | `probes/q11-multihop/VERDICT.md`、ch10 LEDGER F1 |
+| 10 | retrieving more can hurt（heading 3、principle 1） | hit@k 對 k 單調（LEDGER F2）→ 單一答案任務 + LLM 紀錄看方向；規則線只報成本面 precision@k / bytes（D117） | **待**（作者跑，D118） | Q11、ch10 LEDGER F2 |
+| 10 | human evaluation sets mislead once the caller is a model（heading 7、principle 3） | 統計量 A+B（D28）；agent 題庫 = 任何 trajectory log（D117） | **待**（作者跑，D118） | — |
 
 
 ---
@@ -207,13 +207,13 @@
 
 **與大綱的已知差異**：「data-tenant」欄位 = `tenant_id`，從品牌派生（正規化品牌，無品牌 → `__marketplace__`；D101，2026-09-27 改，原句「= 品牌，不另造」——「不造」指不發明 selectivity 欄位，D23 不變）；heading 4 的 ladder 不是 tenant 欄位而是多個現有欄位；heading 8 的「retrieval correctness」報 ANN vs exact，不報相關度。
 
-## ch10 Recommendation and Personalization
+## ch09 Recommendation and Personalization
 
 **問題**：把「推薦」與「個人化」當成同一套檢索 + 排序多一個輸入——一個從這個人的判斷推導出來的意圖脈絡 tensor——而不是另一套系統，能拿到什麼。三件事：(一) 不帶查詞、只帶一個 user 向量，最近鄰能不能把這個人接下來會判 Exact 的商品找回來——自己的向量對別人的向量（shuffled）、對大家都一樣的熱門清單（popular）差多少；(二) 帶查詞時，把同一個人的品牌脈絡加進 ch06 的漏斗，前十能好多少、跟拿陌生人的脈絡比差多少；(三) 脈絡用 partial update 改了之後多久查得到，排名怎麼跟著變；以及離線指標在推薦上為什麼只能說到這裡。
 
 **已決**（D25、D30、D109、D110、D111；2026-09-28 重寫，D70 類；2026-09-29 STOP 1 後改預期結論 / 論點 / 差異，D104 類）：user = brand-affinity（同品牌 Exact 商品的查詢歸同一 user，上限 30 題，seed 42；一題可同時屬於多個 user，章要明講）；評估池 = build train ∪ 擴池（D25 B）→ 4,210 個可切 user、7,100 個 held-out 題，每個 user 前半題建 profile、後半題評估，tuning / reporting 兩半 by user；全部在 train split，validation / test 不碰；路二推薦是主線、路一搜尋個人化是第二段；profile 住在 `user` document type（D109 補充）；時間 = 快照日 2026-11-27（D109 補充 3）；**profile 叫「意圖脈絡」，不叫偏好（D111）**。
 
-**量到（2026-09-28 step 5 / 5b，取代 Phase 1 的預期；證據 `chapters/ch10/LEDGER.md` C1–C14）**
+**量到（2026-09-28 step 5 / 5b，取代 Phase 1 的預期；證據 `chapters/ch09/expected/`）**
 - **路二（推薦，主線）**：own recall@10 / @50 / @100 0.092 / 0.218 / 0.278，shuffled ≈ 0.001，popular ≈ 0.000–0.005；own 對 shuffled +0.091 / +0.216 / +0.276 real、對 popular 同量級；扣掉 profile 出現過的品牌仍 0.096 / 0.229 / 0.293（不是品牌記憶）。離線檢查的 0.036 / 0.125 / 0.187 是規劃期預期，不引用。
 - **路一（搜尋個人化，第二段）**：**Phase 1 的兩支預期都不成立**——二階品牌分布 own = baseline = shuffled（漏斗 +0.000、純 lexical +0.001，都 noise）；真效果在**脈絡向量**：+0.039 [+0.033, +0.045] real 對 baseline、送別人的向量 −0.036、兩者差 +0.075 [+0.068, +0.082] real；上界（定義 user 的品牌，循環）+0.045 / +0.046 real；顏色 +0.008 [+0.005, +0.011] real（w 0.1；w 0.5 −0.045）；權重太大每項都輸。探索性覆蓋率分組（tuning half）+0.007 / −0.003。Q15 的 +0.008（1,221 題、weighted terms、`bm25_tuned`）沒重現，原因 hypothesis（D106）。
 - **freshness**：ack → GET p50 2.4 ms、→ 推薦前十改變 p50 9.2 ms（系統性質，ours）；排名改變只示範。
@@ -231,7 +231,7 @@
 
 **與大綱的已知差異**：dataset / code list 換成 ESCI 與本 repo 工具（D42 前提 1）；「synthetic … sessions … clicks, dwell time, saves, timestamps」→ 從判斷推導的事件、中性詞彙、一個寫死的快照日；Overview 的 "represent **preferences** as tensors" → 我們表示的是意圖脈絡（heading 3 的 "context features"），資料撐不起偏好（D111）；heading 4 recency decay / diversity / exploration 只示範機制；heading 6「serving learned recommendation models」無模型（D109 (4)）；heading 7 講不量，本章的回答是 shuffled / popular 對照；「offline evaluation with Recall@K and NDCG」量得出：recall@K over users（路二）、ndcg@10（路一），都帶對照；「fresh beats stale」不量。
 
-## ch11 Agentic Search
+## ch10 Agentic Search
 
 **狀態：D117 改寫（2026-09-29）；D118 起本章只做規劃 + 範例，細節留給作者。**
 

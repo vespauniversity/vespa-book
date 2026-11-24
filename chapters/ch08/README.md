@@ -369,10 +369,10 @@ After a run, `git diff chapters/ch08/expected/` shows every difference.
 
 ## Next
 
-The next chapter, Recommendation and Personalization, is in `chapters/ch10/` in this repository. Its own start script runs `bootstrap.sh` and then fills the user documents:
+The next chapter, Recommendation and Personalization, is in `chapters/ch09/` in this repository. Its own start script runs `bootstrap.sh` and then fills the user documents:
 
 ```
-chapters/ch10/start.sh
+chapters/ch09/start.sh
 ```
 
 The product catalogue and every filter from this chapter stay as they are. Chapter 8 used the caller's identity only to restrict what a request may see; the next chapter uses who is shopping as evidence for ranking.

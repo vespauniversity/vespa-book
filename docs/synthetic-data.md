@@ -1,14 +1,14 @@
-# Deriving the data chapters 8, 10 and 11 need
+# Deriving the data chapters 8, 9 and 10 need
 
 Status: built — chapter 8 derives `tenant_id` and the invented staff registry
-(`chapters/ch08/derive_tenants.py`), chapter 10 derives the users
-(`chapters/ch10/`); this file is the rule they follow, written before either
+(`chapters/ch08/derive_tenants.py`), chapter 9 derives the users
+(`chapters/ch09/`); this file is the rule they follow, written before either
 was built. **Ours.** Written so that there is a direction to offer if the
 author has none, and so that the decision is made once rather than three times.
 
 ## The problem
 
-Chapters 8, 10 and 11 need users, permissions, tenants, sessions and multi-hop
+Chapters 8, 9 and 10 need users, permissions, tenants, sessions and multi-hop
 questions. ESCI has none of them. It has:
 
 ```
@@ -34,9 +34,9 @@ field may demonstrate a mechanism; it may not claim a result.
 
 ## One tool set, not three
 
-Chapters 8, 10 and 11 all need "who is this user and what may they see". If each
+Chapters 8, 9 and 10 all need "who is this user and what may they see". If each
 chapter derives its own, the three will disagree, and by then the disagreement
-is in three manuscripts. Everything below is derived by one tool per chapter (`chapters/ch08/derive_tenants.py`, chapter 10's user tools), each reading the same rules here.
+is in three manuscripts. Everything below is derived by one tool per chapter (`chapters/ch08/derive_tenants.py`, chapter 9's user tools), each reading the same rules here.
 
 Common requirements for every tool here:
 
@@ -91,7 +91,7 @@ with each tenant's size so the chapter can pick filter targets across the range.
 
 **Invented, and must be labelled as such:** chapter 8's staff accounts (`users.json`,
 five accounts, each an allowed set of sellers) — the registry behind authorization,
-not the chapter-10 users of §2, which are derived. They hang off the tenant - a
+not the chapter-9 users of §2, which are derived. They hang off the tenant - a
 seller's staff - which gives them structure but not evidence. Chapter 8 may use
 them to demonstrate authorization and to test for leakage; it may not present
 any relevance number that depends on them. (As built: no group or role; the
@@ -99,7 +99,7 @@ registry has accounts only.)
 
 ## 2. `derive_users.py` - who is shopping
 
-**Chapter 10.** A user is a coherent set of shopping intents.
+**Chapter 9.** A user is a coherent set of shopping intents.
 
 **Rule (D25, D109; the connected-component rule Phase 1 started from gave
 63–173 held-out queries, Q10, and was replaced).** Group queries by the brand of
@@ -128,7 +128,7 @@ split; test stays untouched until the chapter reports.
 
 **Output.** Per-user profile tensors, and a per-user evaluation set.
 
-**As built (chapter 10, `chapters/ch10/derive_users.py`, `derive_events.py`,
+**As built (chapter 9, `chapters/ch09/derive_users.py`, `derive_events.py`,
 `profile_updater.py`).** 4,210 users, fed as empty `user` documents and filled by
 one partial update per event. Each document carries seven fields: `user_id`,
 `defining_brand`, `profile_vector` (the plain running mean of the title vectors
@@ -153,9 +153,9 @@ tenant tool, not this one.
   products span three brands seeds three users. The chapter says so wherever a
   "user" is named.
 
-## 3. `derive_events.py` - the feed chapter 10 asks for
+## 3. `derive_events.py` - the feed chapter 9 asks for
 
-**Chapter 10** asks for a user-event feed and an online profile updater, which
+**Chapter 9** asks for a user-event feed and an online profile updater, which
 needs events arriving in an order.
 
 **Rule.** For each user, emit their queries and judged products in the imposed
@@ -175,7 +175,7 @@ recommendation quality improving because a user did something.
 
 ## 4. `derive_multihop.py` - questions with a verified answer
 
-**Chapter 11**, and the best fit of the four.
+**Chapter 10**, and the best fit of the four.
 
 The outline planned an author-generated multi-hop question set with verified
 supporting passages and hard negatives. ESCI already contains both, labelled by
@@ -190,7 +190,7 @@ judgements are verified hard negatives, and 86.5% of queries carry both.
 - **Hard negatives**: products judged `I` for `q`.
 - **Reject** any question whose oracle set is smaller than a threshold, so every
   question is answerable.
-- **Revised at chapter 11 step 3 (D119):** the oracle is `S` **or `E`** with brand ≠
+- **Revised at chapter 10 step 3 (D119):** the oracle is `S` **or `E`** with brand ≠
   brand(p) (an exact match by another brand is a better alternative, not a miss);
   anchors without a brand are dropped first (D27); retrieval is restricted to the
   query's judged pool, so an unjudged product never appears in an answer. Test at
@@ -252,7 +252,7 @@ reader will have in mind.
 Write the derivation record before writing any of the tools - one table naming
 every synthetic field, the rule behind it, and whether it is derived or
 invented. It is the part that is expensive to change later: once chapter 8 has
-printed numbers against one tenant model, chapter 10 cannot pick a different
+printed numbers against one tenant model, chapter 9 cannot pick a different
 one without re-measuring chapter 8.
 
 The tools themselves are ordinary work. The definitions are not.

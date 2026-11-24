@@ -1,0 +1,40 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "doctype": "user",
+  "documents": 4210,
+  "vectors_per_document": 1,
+  "dimensions": 384,
+  "bytes_per_cell": 4,
+  "predicted_vector_bytes": 6466560,
+  "allocated_bytes": 15939516,
+  "settled": true,
+  "settle_seconds": 600,
+  "rounds": 3,
+  "tolerance": 0.01,
+  "readings_mb": [
+    16,
+    16
+  ],
+  "metrics": {
+    "content.proton.documentdb.memory_usage.allocated_bytes.last": 15939516,
+    "content.proton.documentdb.disk_usage.last": 498407,
+    "content.proton.transactionlog.disk_usage.last": 111449958,
+    "cluster-controller.resource_usage.max_memory_utilization.last": 0.1735719964057,
+    "cluster-controller.resource_usage.max_disk_utilization.last": 0.2055503813653
+  },
+  "host": {
+    "captured_at": "2026-09-28T14:41:13Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3"
+    }
+  }
+}

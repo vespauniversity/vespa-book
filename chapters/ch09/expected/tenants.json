@@ -1,7 +1,7 @@
 {
   "build": "esci-us-hard-book-s42-kdd-v4",
   "host": {
-    "captured_at": "2026-10-16T07:23:47Z",
+    "captured_at": "2026-10-27T07:55:27Z",
     "os": "Darwin 24.6.0",
     "arch": "arm64",
     "cpu": "Apple M4 Pro",

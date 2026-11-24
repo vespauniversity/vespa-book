@@ -1,6 +1,6 @@
-# Chapter 10 — Recommendation and Personalization as a Ranking Problem
+# Chapter 9 — Recommendation and Personalization as a Ranking Problem
 
-This directory is the code for Chapter 10 of *Production AI Search with Vespa*. It treats recommendation and personalization as one more input to the retrieval and ranking machinery the book has already built, not as a separate system. Each synthetic user's profile lives in a second document type, `user`, kept current with partial updates, and reaches the product search as request inputs.
+This directory is the code for Chapter 9 of *Production AI Search with Vespa*. It treats recommendation and personalization as one more input to the retrieval and ranking machinery the book has already built, not as a separate system. Each synthetic user's profile lives in a second document type, `user`, kept current with partial updates, and reaches the product search as request inputs.
 
 The chapter then asks three questions of the same 101,341 products:
 
@@ -13,7 +13,7 @@ The book explains what each step does and why. This page is the practical half: 
 ## What is in this directory
 
 ```
-chapters/ch10/
+chapters/ch09/
 ├── app/                                  the application package Vespa deploys
 │   ├── services.xml                      Chapter 8's, plus the user document type in the content cluster
 │   ├── schemas/
@@ -32,7 +32,6 @@ chapters/ch10/
 ├── recommend.py                          recommendation with no query: the profile as the query
 ├── personalized_eval.py                  the profile inside the ranking, against baseline and controls
 ├── freshness.py                          how soon a new event is visible to a read, a search and a recommendation
-├── COMMANDS.md                           every command, as run for the book
 └── expected/                             the book's reference output
 ```
 
@@ -57,17 +56,17 @@ Every pinned version is listed in `docs/pins.md` at the repository root.
 From the repository root:
 
 ```
-chapters/ch10/start.sh
+chapters/ch09/start.sh
 ```
 
-**Run `start.sh`, not `./bootstrap.sh ch10`.** `start.sh` runs the shared bootstrap first, then the chapter's own chain:
+**Run `start.sh`, not `./bootstrap.sh ch09`.** `start.sh` runs the shared bootstrap first, then the chapter's own chain:
 
 1. `derive_users.py` derives the users.
 2. `feed.py` feeds them as empty documents.
 3. `derive_events.py` derives the event stream.
 4. `profile_updater.py` applies the events one partial update at a time.
 
-Running `./bootstrap.sh ch10` on its own deploys the right package but leaves zero `user` documents, and every command below needs them.
+Running `./bootstrap.sh ch09` on its own deploys the right package but leaves zero `user` documents, and every command below needs them.
 
 If you are continuing from Chapter 8, the bootstrap only deploys this chapter's package, which adds the `user` type and the two new rank profiles. Nothing about the products changes, so nothing is refed. The user chain then derives 4,210 users and 86,036 events and applies them.
 
@@ -86,13 +85,13 @@ Your timings will differ.
 The script counts the user documents, and the filled ones, before it reports the container ready. If either count is short, it reruns the whole chain from the empty feed, so nothing is applied twice. A successful run ends with both document types:
 
 ```
-== at the start of ch10
+== at the start of ch09
    build      builds/esci-us-hard-book-s42-kdd-v4
    image      vespaengine/vespa:8.751.13
    documents  101341
    embedders  embedder=BAAI/bge-small-en-v1.5@5c38ec7c colbert=colbert-ir/colbertv2.0@c1e84128
 
-== at the start of ch10 (users)
+== at the start of ch09 (users)
    users      4210 (4210 filled)
 ```
 
@@ -100,7 +99,7 @@ The script counts the user documents, and the filled ones, before it reports the
 
 The steps below follow the chapter, section by section. Run them from the repository root after `start.sh` has finished.
 
-Most commands save their result in `expected/`, replacing the book's copy of that file, so that `git diff chapters/ch10/expected/` shows how your run compares with the book's. To put the book's files back, run `git checkout chapters/ch10/expected/`. `start.sh` itself rewrites four reports: `users.json`, `feed-users.json`, `events.json` and `profile-updates.json`.
+Most commands save their result in `expected/`, replacing the book's copy of that file, so that `git diff chapters/ch09/expected/` shows how your run compares with the book's. To put the book's files back, run `git checkout chapters/ch09/expected/`. `start.sh` itself rewrites four reports: `users.json`, `feed-users.json`, `events.json` and `profile-updates.json`.
 
 **Budget your time.** Everything below except the profile inside the ranking takes minutes. The personalized report runs the full hybrid funnel, ColBERT second phase included, over thousands of pairs, and took about 70 minutes on the reference machine. The memory reading takes at least twenty minutes. The weight sweeps that chose the chapter's weights took over four hours; their results ship in `expected/`, so they are listed separately at the end and are optional.
 
@@ -127,8 +126,8 @@ The profile document is `app/schemas/user.sd`. `start.sh` already filled it. Thr
 **Feeding the empty users and applying the events:**
 
 ```
-.venv/bin/python shared/tools/feed.py --from chapters/ch10/expected/feed-users.json > chapters/ch10/expected/feed-users.block.md
-.venv/bin/python chapters/ch10/profile_updater.py --split train --from chapters/ch10/expected/profile-updates.json --block updates > chapters/ch10/expected/profile-updates.block.md
+.venv/bin/python shared/tools/feed.py --from chapters/ch09/expected/feed-users.json > chapters/ch09/expected/feed-users.block.md
+.venv/bin/python chapters/ch09/profile_updater.py --split train --from chapters/ch09/expected/profile-updates.json --block updates > chapters/ch09/expected/profile-updates.block.md
 ```
 
 **What you should see:** 4,210 users fed in about 2.7 seconds, and 86,036 events applied in about 290.9 seconds, 296 updates per second, on the reference machine. The titles' one-time encoding before the first update is in neither figure.
@@ -136,8 +135,8 @@ The profile document is `app/schemas/user.sd`. `start.sh` already filled it. Thr
 **What the user type adds to memory.** At least twenty minutes:
 
 ```
-.venv/bin/python shared/tools/memory.py --settle 600 --rounds 3 --tolerance 0.01 --doctype user --label "ch10 user type" --out chapters/ch10/expected/memory-user.json
-.venv/bin/python shared/tools/memory.py --from chapters/ch10/expected/memory-user.json > chapters/ch10/expected/memory-user.block.md
+.venv/bin/python shared/tools/memory.py --settle 600 --rounds 3 --tolerance 0.01 --doctype user --label "ch09 user type" --out chapters/ch09/expected/memory-user.json
+.venv/bin/python shared/tools/memory.py --from chapters/ch09/expected/memory-user.json > chapters/ch09/expected/memory-user.block.md
 ```
 
 **What you should see:** about 16 MB for the `user` type, beside 6 MB computed by hand for the profile vectors (4,210 × 384 × 4 bytes). Check that the report says `settled: true`.
@@ -147,10 +146,10 @@ The profile document is `app/schemas/user.sd`. `start.sh` already filled it. Thr
 The profile vector, normalized to unit length, is sent as the query of Chapter 4's `nearestNeighbor(title_embedding, q)` request, and products already in the user's `seen` list are dropped. Four rows, reporting half. This took about 68 seconds:
 
 ```
-.venv/bin/python chapters/ch10/recommend.py --split train --half reporting --rows own,shuffled,popular,cross_brand --passes 1 --out chapters/ch10/expected/recommend-reporting.json --block recall
-.venv/bin/python chapters/ch10/recommend.py --split train --from chapters/ch10/expected/recommend-reporting.json --block recall > chapters/ch10/expected/recommend-reporting-recall.block.md
-.venv/bin/python chapters/ch10/recommend.py --split train --from chapters/ch10/expected/recommend-reporting.json --block deltas > chapters/ch10/expected/recommend-reporting-deltas.block.md
-.venv/bin/python chapters/ch10/recommend.py --split train --from chapters/ch10/expected/recommend-reporting.json --block latency > chapters/ch10/expected/recommend-reporting-latency.block.md
+.venv/bin/python chapters/ch09/recommend.py --split train --half reporting --rows own,shuffled,popular,cross_brand --passes 1 --out chapters/ch09/expected/recommend-reporting.json --block recall
+.venv/bin/python chapters/ch09/recommend.py --split train --from chapters/ch09/expected/recommend-reporting.json --block recall > chapters/ch09/expected/recommend-reporting-recall.block.md
+.venv/bin/python chapters/ch09/recommend.py --split train --from chapters/ch09/expected/recommend-reporting.json --block deltas > chapters/ch09/expected/recommend-reporting-deltas.block.md
+.venv/bin/python chapters/ch09/recommend.py --split train --from chapters/ch09/expected/recommend-reporting.json --block latency > chapters/ch09/expected/recommend-reporting-latency.block.md
 ```
 
 | Row | What it sends |
@@ -172,8 +171,8 @@ The profile vector, normalized to unit length, is sent as the query of Chapter 4
 **Adding a business constraint.** One reporting-half user, `generic`, unfiltered and with Chapter 8's `has_description` filter:
 
 ```
-.venv/bin/python chapters/ch10/recommend.py --split train --user generic --block hits > chapters/ch10/expected/demo-generic-recommend.block.md
-.venv/bin/python chapters/ch10/recommend.py --split train --user generic --where 'has_description = true' --block hits > chapters/ch10/expected/demo-generic-recommend-filtered.block.md
+.venv/bin/python chapters/ch09/recommend.py --split train --user generic --block hits > chapters/ch09/expected/demo-generic-recommend.block.md
+.venv/bin/python chapters/ch09/recommend.py --split train --user generic --where 'has_description = true' --block hits > chapters/ch09/expected/demo-generic-recommend-filtered.block.md
 ```
 
 **What you should see:** a home-decor mix in the unfiltered top ten (a drink coaster, wall sconces, a curtain rod, sink drains, a vanity tray). With the filter, nine of the ten are the same. The curtain rod, which has no description, is replaced by the next nearest product that has one. A rebuilt HNSW graph can swap one item at the edge of the ten.
@@ -185,8 +184,8 @@ The `personalized` profile inherits `phased` and adds three terms to its first p
 **Choosing weights on one half, reporting on the other.** The reporting half, at the weights the tuning half chose. About 70 minutes:
 
 ```
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half reporting --phase report --w own=0.05 shuffled=0.05 upper=0.5 colour=0.1 vector=1 vector_shuffled=1 --out chapters/ch10/expected/personalized-report.json --block report
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half reporting --phase report --from chapters/ch10/expected/personalized-report.json --block report > chapters/ch10/expected/personalized-report.block.md
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half reporting --phase report --w own=0.05 shuffled=0.05 upper=0.5 colour=0.1 vector=1 vector_shuffled=1 --out chapters/ch09/expected/personalized-report.json --block report
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half reporting --phase report --from chapters/ch09/expected/personalized-report.json --block report > chapters/ch09/expected/personalized-report.block.md
 ```
 
 | Row | What it adds to the first phase |
@@ -215,8 +214,8 @@ The two summary lines read `own vs shuffled: +0.000 [-0.001, +0.001]` and `vecto
 **Is the brand result an artifact of the funnel?** The same brand term on Chapter 3's keyword profile, `bm25_tuned`, at w = 10. BM25 is unbounded, so the weight scale differs. About 3 minutes:
 
 ```
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half reporting --phase report --ranking personalized_lexical --w own=10 shuffled=10 upper=10 --out chapters/ch10/expected/personalized-lexical-report.json --block report
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half reporting --phase report --ranking personalized_lexical --from chapters/ch10/expected/personalized-lexical-report.json --block report > chapters/ch10/expected/personalized-lexical-report.block.md
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half reporting --phase report --ranking personalized_lexical --w own=10 shuffled=10 upper=10 --out chapters/ch09/expected/personalized-lexical-report.json --block report
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half reporting --phase report --ranking personalized_lexical --from chapters/ch09/expected/personalized-lexical-report.json --block report > chapters/ch09/expected/personalized-lexical-report.block.md
 ```
 
 **What you should see:** baseline NDCG@10 0.303. `own` +0.001 [−0.002, +0.003]. `upper` +0.046 [+0.041, +0.050]. `own vs shuffled: +0.001 [-0.001, +0.003]`.
@@ -224,7 +223,7 @@ The two summary lines read `own vs shuffled: +0.000 [-0.001, +0.001]` and `vecto
 **Why the average is flat.** The tuning-half pairs split by whether the user's brand distribution covers the brand of at least one of the query's Exact products. This reads the shipped sweep report and queries nothing:
 
 ```
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half tuning --phase tune --from chapters/ch10/expected/personalized-tune.json --block coverage > chapters/ch10/expected/personalized-coverage.block.md
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half tuning --phase tune --from chapters/ch09/expected/personalized-tune.json --block coverage > chapters/ch09/expected/personalized-coverage.block.md
 ```
 
 **What you should see:** for 1,184 covered pairs, `own` against baseline +0.007 [+0.005, +0.010]; for 2,328 uncovered pairs, −0.003 [−0.004, −0.002]. The block is marked exploratory, because the split was chosen after the flat average was seen.
@@ -238,8 +237,8 @@ The chapter's clock is invented. Every user's newest event is stamped on one sna
 **One user, before and after.** Re-stamp `generic`'s last two events one day past the snapshot, then ask for the profile aged with a seven-day half-life at that day:
 
 ```
-.venv/bin/python chapters/ch10/profile_updater.py --split train --user generic --events 246-247 --after-snapshot 1
-.venv/bin/python chapters/ch10/recommend.py --split train --user generic --half-life 7 --now 2026-11-28T00:00:00Z --block hits > chapters/ch10/expected/demo-generic-recommend-next-day.block.md
+.venv/bin/python chapters/ch09/profile_updater.py --split train --user generic --events 246-247 --after-snapshot 1
+.venv/bin/python chapters/ch09/recommend.py --split train --user generic --half-life 7 --now 2026-11-28T00:00:00Z --block hits > chapters/ch09/expected/demo-generic-recommend-next-day.block.md
 ```
 
 The first command changes only two cells of `event_times`. Its printed report shows `0` events applied, because re-stamps are reported on its progress line, not in its table.
@@ -249,7 +248,7 @@ The first command changes only two cells of `event_times`. Its printed report sh
 **A profile with no recent history.** `now` thirteen months on, with a 90-day window:
 
 ```
-.venv/bin/python chapters/ch10/recommend.py --split train --user generic --half-life 7 --now 2028-01-01T00:00:00Z --max-age 90 --block hits > chapters/ch10/expected/demo-generic-recommend-stale.block.md
+.venv/bin/python chapters/ch09/recommend.py --split train --user generic --half-life 7 --now 2028-01-01T00:00:00Z --max-age 90 --block hits > chapters/ch09/expected/demo-generic-recommend-stale.block.md
 ```
 
 **What you should see:** `profile older than 90.0 days at now=1830297600: popular list shown`, followed by the popular list (laptops, AirPods, an Echo Dot, a streaming stick, syringes) minus this user's seen products. No request is sent, so this block reproduces exactly.
@@ -257,7 +256,7 @@ The first command changes only two cells of `event_times`. Its printed report sh
 **Restore the user.** Put `generic` back to its full 247-event history before moving on:
 
 ```
-.venv/bin/python chapters/ch10/profile_updater.py --split train --user generic --reset
+.venv/bin/python chapters/ch09/profile_updater.py --split train --user generic --reset
 ```
 
 Session signals, diversity and exploration are discussed in the chapter but not built; there is nothing to run for them.
@@ -273,8 +272,8 @@ For 50 reporting-half users, the tool sends one additional synthetic judgement e
 Afterward, it restores every field it touched. About 8 seconds:
 
 ```
-.venv/bin/python chapters/ch10/freshness.py --split train --users 50 --out chapters/ch10/expected/freshness.json --block freshness-search
-.venv/bin/python chapters/ch10/freshness.py --split train --from chapters/ch10/expected/freshness.json --block freshness-search > chapters/ch10/expected/freshness-search.block.md
+.venv/bin/python chapters/ch09/freshness.py --split train --users 50 --out chapters/ch09/expected/freshness.json --block freshness-search
+.venv/bin/python chapters/ch09/freshness.py --split train --from chapters/ch09/expected/freshness.json --block freshness-search > chapters/ch09/expected/freshness-search.block.md
 ```
 
 **What you should see:**
@@ -298,10 +297,10 @@ These two sweeps chose the weights the reporting tables use. Their reports ship 
 The funnel sweep took 14,713.9 seconds, just over four hours; the lexical sweep took 603.3 seconds:
 
 ```
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half tuning --phase tune --w 0.05,0.1,0.2,0.5 --w-vector 0.1,0.2,0.5,1 --out chapters/ch10/expected/personalized-tune.json --block tune
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half tuning --phase tune --from chapters/ch10/expected/personalized-tune.json --block tune > chapters/ch10/expected/personalized-tune.block.md
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half tuning --phase tune --ranking personalized_lexical --w 1,2,5,10 --out chapters/ch10/expected/personalized-lexical-tune.json --block tune
-.venv/bin/python chapters/ch10/personalized_eval.py --split train --half tuning --phase tune --ranking personalized_lexical --from chapters/ch10/expected/personalized-lexical-tune.json --block tune > chapters/ch10/expected/personalized-lexical-tune.block.md
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half tuning --phase tune --w 0.05,0.1,0.2,0.5 --w-vector 0.1,0.2,0.5,1 --out chapters/ch09/expected/personalized-tune.json --block tune
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half tuning --phase tune --from chapters/ch09/expected/personalized-tune.json --block tune > chapters/ch09/expected/personalized-tune.block.md
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half tuning --phase tune --ranking personalized_lexical --w 1,2,5,10 --out chapters/ch09/expected/personalized-lexical-tune.json --block tune
+.venv/bin/python chapters/ch09/personalized_eval.py --split train --half tuning --phase tune --ranking personalized_lexical --from chapters/ch09/expected/personalized-lexical-tune.json --block tune > chapters/ch09/expected/personalized-lexical-tune.block.md
 ```
 
 **What you should see:**
@@ -321,13 +320,13 @@ The funnel sweep took 14,713.9 seconds, just over four hours; the lexical sweep 
 - **Freshness counts.** Expect 0 misses and `restore_verified` true. The number of users whose top ten changed can differ by one or two.
 - **Cost numbers.** Bootstrap, feed and update timings, latency, freshness timings and memory. These describe one machine on one day (an Apple M4 Pro, Docker with 4 CPUs / 10 GB), one query at a time. Yours will differ, and that is expected.
 
-After a run, `git diff chapters/ch10/expected/` shows every difference.
+After a run, `git diff chapters/ch09/expected/` shows every difference.
 
-`expected/` also holds three product-type memory readings that the chapter does not quote: `memory-fresh` (taken right after `start.sh`), `memory` (taken after the measurements, compared with Chapter 8's container), and a tuning-half recall table, `recommend-tuning-recall`. `COMMANDS.md` lists how each was produced.
+`expected/` also holds three product-type memory readings that the chapter does not quote: `memory-fresh` (taken right after `start.sh`), `memory` (taken after the measurements, compared with Chapter 8's container), and a tuning-half recall table, `recommend-tuning-recall`.
 
 ## If something goes wrong
 
-**A command says a user document was not found, or every recall is zero.** The `user` documents are missing or empty. You probably ran `./bootstrap.sh ch10` instead of `chapters/ch10/start.sh`. Run `start.sh`; it fills the users and checks the counts.
+**A command says a user document was not found, or every recall is zero.** The `user` documents are missing or empty. You probably ran `./bootstrap.sh ch09` instead of `chapters/ch09/start.sh`. Run `start.sh`; it fills the users and checks the counts.
 
 **Counting `user` documents through the query API returns 0 with an error.** The default query profile names `bm25_tuned`, a rank profile only the `product` schema has. Add `ranking.profile=unranked` to a hand-typed count, as `start.sh` does.
 
@@ -355,4 +354,4 @@ The chapter's tools already handle all three.
 
 ## Next
 
-The next chapter changes who is searching. The same catalogue, lenses and ranking machinery serve a consumer that is not a person: an AI agent that issues many searches in sequence and reasons forward from what comes back. That chapter's code is on hold: `chapters/ch11/DESIGN.md` holds its design and a runnable five-question example, with no full lab yet.
+The next chapter changes who is searching. The same catalogue, lenses and ranking machinery serve a consumer that is not a person: an AI agent that issues many searches in sequence and reasons forward from what comes back. Continue with [Chapter 10 — Agentic Search](../ch10/README.md).
