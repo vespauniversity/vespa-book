@@ -1,0 +1,159 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "test",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "axis": "tenant",
+  "a": {
+    "planner": "llm",
+    "oracle_mode": false,
+    "shape": "alternative",
+    "k": 3,
+    "n": 872,
+    "successes": 792,
+    "success_rate": 0.908256880733945,
+    "half_width": 0.019159709863514895,
+    "half_width_widest": 0.03318698761245122,
+    "hit_at_k": 0.948394495412844,
+    "precision_at_k": 0.802752293577981,
+    "scored_for_hit_precision": 872,
+    "brand_recall_mean": null,
+    "brand_precision_mean": null,
+    "context_bytes_mean": 846.3600917431193,
+    "status_counts": {
+      "ok": 1565,
+      "over_constrained": 33
+    },
+    "queries_per_task": {
+      "p50": 2.0,
+      "p95": 3.0
+    },
+    "invalid_queries_per_task": 0.0,
+    "queries_per_task_mean": 1.8704128440366972,
+    "latency_per_task_ms": {
+      "mean": 28.582912844036695,
+      "p50": 24.599999999999998,
+      "p95": 55.7,
+      "p99": 65.69999999999999,
+      "max": 82.5
+    },
+    "latency_per_query_ms_mean": 16.73907110091744,
+    "surface": "query",
+    "model": "gpt-6-sol",
+    "date": "2026-10-22",
+    "vespa": "8.751.13"
+  },
+  "b": {
+    "planner": "llm",
+    "oracle_mode": false,
+    "shape": "alternative",
+    "k": 3,
+    "n": 872,
+    "successes": 801,
+    "success_rate": 0.9185779816513762,
+    "half_width": 0.018152095859846774,
+    "half_width_widest": 0.03318698761245122,
+    "hit_at_k": 0.9701834862385321,
+    "precision_at_k": 0.8413608562691127,
+    "scored_for_hit_precision": 872,
+    "brand_recall_mean": null,
+    "brand_precision_mean": null,
+    "context_bytes_mean": 751.1238532110092,
+    "status_counts": {
+      "filtered": 51,
+      "malformed": 3,
+      "ok": 1685,
+      "over_constrained": 31
+    },
+    "queries_per_task": {
+      "p50": 2.0,
+      "p95": 4.0
+    },
+    "invalid_queries_per_task": 0.0034403669724770644,
+    "queries_per_task_mean": 2.1594036697247705,
+    "latency_per_task_ms": {
+      "mean": 29.071100917431192,
+      "p50": 26.0,
+      "p95": 52.1,
+      "p99": 68.3,
+      "max": 93.8
+    },
+    "latency_per_query_ms_mean": 14.999982525120162,
+    "surface": "query",
+    "model": "gpt-6-sol",
+    "date": "2026-10-23",
+    "vespa": "8.751.13",
+    "boundary": {
+      "tenant_rule": "pair",
+      "sellers_per_question": 2,
+      "answerable": 872,
+      "answerable_share": 1.0,
+      "oracle_share_inside": {
+        "mean": 0.2711856855657041,
+        "p50": 0.21428571428571427,
+        "p25": 0.14285714285714285,
+        "p75": 0.3333333333333333
+      },
+      "filtered_steps": 51,
+      "after_filtered": {
+        "final": 23,
+        "query filtered": 4,
+        "query ok": 24
+      },
+      "questions_with_filtered": 45,
+      "went_on_to_an_ok_search": 24,
+      "recovered": 27,
+      "questions_without_filtered": 827,
+      "successes_without_filtered": 774
+    }
+  },
+  "delta": {
+    "success": {
+      "delta": 0.010321100917431193,
+      "lo": -0.013761467889908258,
+      "hi": 0.034403669724770644,
+      "significant": false,
+      "n": 872
+    },
+    "queries_per_task": {
+      "delta": 0.2889908256880734,
+      "lo": 0.2213302752293578,
+      "hi": 0.36123853211009177,
+      "significant": true,
+      "n": 872
+    },
+    "context_bytes": {
+      "delta": -95.2362385321101,
+      "lo": -127.39564220183486,
+      "hi": -62.803899082568805,
+      "significant": true,
+      "n": 872
+    },
+    "invalid_queries_per_task": {
+      "delta": 0.0034403669724770644,
+      "lo": 0.0,
+      "hi": 0.009174311926605505,
+      "significant": false,
+      "n": 872
+    }
+  },
+  "a_label": "no boundary",
+  "b_label": "boundary of 2 sellers (pair)",
+  "host": {
+    "captured_at": "2026-10-22T19:53:04Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3",
+      "runtime": "Rancher Desktop",
+      "runtime_name": "lima-rancher-desktop",
+      "runtime_os": "Alpine Linux v3.23",
+      "context": "rancher-desktop"
+    }
+  }
+}

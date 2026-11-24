@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- The filter's shape lives here, deployed with the application, so a
+     request through the trusted endpoint never builds it: the same
+     keyword-or-vector union this book retrieves with from chapter 5 on,
+     ANDed with the seller boundary. The request supplies only the typed
+     value `tenant` (see types/tenant.xml), the query text, the query vector
+     and `hits`, which also sets how many nearest neighbours the vector arm
+     asks for (in total, never fewer than 100); it does not send YQL at all.
+     The `yql` field is declared `overridable="false"`, so a request that
+     selects this profile and sends its own `yql` anyway has it ignored and
+     the profile's runs - the shape is the application's, never the
+     caller's. -->
+<query-profile id="tenant" type="tenant" inherits="default">
+    <field name="ranking.profile">hybrid_linear</field>
+    <field name="yql" overridable="false">select id, title, tenant_id from product where (userQuery() or ({totalTargetHits:%{hits}}nearestNeighbor(title_embedding, q))) and tenant_id in (%{tenant})</field>
+</query-profile>

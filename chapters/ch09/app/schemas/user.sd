@@ -1,0 +1,88 @@
+schema user {
+
+  # Why a second document type: a product is fixed once fed - this chapter
+  # ranks with it but never writes to it. A profile is different. It is
+  # state that changes between requests - a new judgement comes in, the
+  # brand distribution shifts, the vector moves - so it needs somewhere to
+  # live that can be updated in place, a few fields per update, without
+  # refeeding the whole document. That is what this document type is: it is
+  # fetched by user id, then carried into the product query as tensor
+  # inputs, the same way any other request parameter is.
+  #
+  # Nothing here is indexed and no ranking request searches it. Every field
+  # is `summary | attribute`: read back whole (by id, or by a partial update
+  # reading its own previous value). The only queries that touch this type
+  # are the start script's counts (every user, every filled user; no hit
+  # returned) and the freshness tool's visibility check, which looks one
+  # document up by `user_id`, a plain attribute match.
+
+  document user {
+
+    # The document id is this same string, so a GET or an update needs no
+    # extra field to look the user up by - the id is the key.
+    field user_id type string {
+      indexing: summary | attribute
+    }
+
+    # The normalised brand this user was built from (the brand-affinity
+    # cluster's seed). Informational only: nothing ranks on it, it exists so
+    # a reader looking at one user document can see which brand grouped
+    # these judgements together.
+    field defining_brand type string {
+      indexing: summary | attribute
+    }
+
+    # The mean of this user's profile-half Exact products' title vectors,
+    # 384 numbers from the one pinned retrieval embedder this project uses
+    # everywhere else. Read, never searched - there is no HNSW index on this
+    # field and no distance-metric setting, because nothing ever asks "which
+    # users are near this vector"; the recommendation request goes the other
+    # way, reading this vector out and sending it as the query side of a
+    # product search.
+    field profile_vector type tensor<float>(x[384]) {
+      indexing: summary | attribute
+    }
+
+    # A second-order brand distribution: across this user's other Exact
+    # products (not the brand that defined the user), how much weight each
+    # brand carries. A mapped tensor - one cell per brand label the user's
+    # judgements actually touched, not a fixed-size vector - because the set
+    # of brands a user has touched is small and different per user. The
+    # labels are normalised brand strings, written exactly the way
+    # `tenant_id` holds them on `product`, so the same string can be looked
+    # up on both sides of a ranking expression.
+    field brand_weights type tensor<float>(brand{}) {
+      indexing: summary | attribute
+    }
+
+    # Product ids already folded into this profile. Read back so a
+    # recommendation request can exclude them from its own candidates
+    # ("already seen"), and so the updater, sent a range of events, can
+    # tell one it has already applied (and only re-stamps it).
+    field seen type array<string> {
+      indexing: summary | attribute
+    }
+
+    # When each relevant product entered this profile, keyed by product id
+    # (a `judged_substitute` event writes no cell): a mapped tensor of epoch
+    # seconds (the default double cell type keeps a 2026 epoch value exact).
+    # The chapter describes one snapshot day -
+    # Black Friday 2026 - and counts every user's events back from it, one
+    # per day, so the times are as invented as the order; what they buy is
+    # the real mechanism: a request can weight each product by its age
+    # against a "now" the caller supplies, and that "now" defaults to the
+    # snapshot day so the same request gives the same answer whenever it is
+    # run.
+    field event_times type tensor(product{}) {
+      indexing: summary | attribute
+    }
+
+    # How many events have been applied to this profile so far. Lets an
+    # update recompute a running mean (the vector above) from a count
+    # instead of needing every past vector kept around, and gives a simple
+    # answer to "has anything happened to this user yet".
+    field events_applied type int {
+      indexing: summary | attribute
+    }
+  }
+}

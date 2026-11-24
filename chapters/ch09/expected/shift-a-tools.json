@@ -1,0 +1,63 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "test",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "trajectories": [
+    "chapters/ch10/expected/trajectories/llm-tools-alternative-k3.jsonl"
+  ],
+  "human": {
+    "n": 1050,
+    "chars": {
+      "mean": 23.263809523809524,
+      "p50": 22.0,
+      "p95": 39.0,
+      "p99": 51.0,
+      "max": 115.0
+    },
+    "words": {
+      "mean": 3.987619047619048,
+      "p50": 4.0,
+      "p95": 7.0,
+      "p99": 9.0,
+      "max": 24.0
+    },
+    "vocabulary_overlap": 0.9602709750566889
+  },
+  "agent": {
+    "n": 1626,
+    "chars": {
+      "mean": 53.920049200492,
+      "p50": 52.0,
+      "p95": 90.0,
+      "p99": 117.0,
+      "max": 198.0
+    },
+    "words": {
+      "mean": 8.95510455104551,
+      "p50": 9.0,
+      "p95": 15.0,
+      "p99": 21.0,
+      "max": 37.0
+    },
+    "vocabulary_overlap": 0.9985848151848155
+  },
+  "agent_wordless_statements": 0,
+  "host": {
+    "captured_at": "2026-10-18T12:48:40Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3",
+      "runtime": "Rancher Desktop",
+      "runtime_name": "lima-rancher-desktop",
+      "runtime_os": "Alpine Linux v3.23",
+      "context": "rancher-desktop"
+    }
+  }
+}

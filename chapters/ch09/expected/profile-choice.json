@@ -1,0 +1,137 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "test",
+  "inputs": [
+    {
+      "path": "chapters/ch10/expected/trajectories/llm-tools-alternative-k3.jsonl",
+      "bytes": 1641780,
+      "sha256": "b661d36d31181c66350df6e4135815519adb6dd70a0cc776b80a4ae20bd53138"
+    },
+    {
+      "path": "chapters/ch10/expected/trajectories/llm-query-alternative-k3.jsonl",
+      "bytes": 3324856,
+      "sha256": "fa695a7a2adeab3b6890d678a5f60851f0ab98b41b6e331ff34aa5d7341405a5"
+    },
+    {
+      "path": "chapters/ch10/expected/trajectories/llm-tools-alternative-k20.jsonl",
+      "bytes": 1832681,
+      "sha256": "9af3d0123d77054c728b1630d2ad701d21d383d18ae67fcef8c60582b4ccd178"
+    },
+    {
+      "path": "chapters/ch10/expected/trajectories/llm-query-alternative-k20.jsonl",
+      "bytes": 3686251,
+      "sha256": "26ee6d5cb221b07ce3e52bb23fe09452a53dea3857cd5843283bdd17978422d1"
+    },
+    {
+      "path": "chapters/ch10/expected/trajectories/llm-query-alternative-k3-allprofiles.jsonl",
+      "bytes": 3005092,
+      "sha256": "86208e095a20d0f6b440ec7eab7ad4af67108b081f9e1598ad7c8339d9350242"
+    }
+  ],
+  "common_questions": false,
+  "default_profile": "hybrid_rrf",
+  "logs": [
+    {
+      "name": "llm-tools-alternative-k3",
+      "path": "chapters/ch10/expected/trajectories/llm-tools-alternative-k3.jsonl",
+      "surface": "tools",
+      "k": 3,
+      "model": "gpt-6-sol",
+      "build": "esci-us-hard-book-s42-kdd-v4",
+      "skill": null,
+      "questions": 872,
+      "statements": 1626,
+      "grouping_calls": 0,
+      "counts": {
+        "no profile named": 1545,
+        "semantic": 58,
+        "bm25_tuned": 23
+      }
+    },
+    {
+      "name": "llm-query-alternative-k3",
+      "path": "chapters/ch10/expected/trajectories/llm-query-alternative-k3.jsonl",
+      "surface": "query",
+      "k": 3,
+      "model": "gpt-6-sol",
+      "build": "esci-us-hard-book-s42-kdd-v4",
+      "skill": {
+        "source": "chapters/ch10/expected/skill.md",
+        "chars": 3715,
+        "sha256": "2b68b796b557c16b72a580b61e062e91a4b088bca3d3e4b18d9bcec7ef5ff34e"
+      },
+      "questions": 872,
+      "statements": 1565,
+      "grouping_calls": 0,
+      "counts": {
+        "hybrid_rrf": 1028,
+        "bm25_tuned": 504,
+        "no profile named": 26,
+        "semantic": 7
+      }
+    },
+    {
+      "name": "llm-tools-alternative-k20",
+      "path": "chapters/ch10/expected/trajectories/llm-tools-alternative-k20.jsonl",
+      "surface": "tools",
+      "k": 20,
+      "model": "gpt-6-sol",
+      "build": "esci-us-hard-book-s42-kdd-v4",
+      "skill": null,
+      "questions": 872,
+      "statements": 1595,
+      "grouping_calls": 1,
+      "counts": {
+        "no profile named": 1427,
+        "bm25_tuned": 112,
+        "semantic": 56
+      }
+    },
+    {
+      "name": "llm-query-alternative-k20",
+      "path": "chapters/ch10/expected/trajectories/llm-query-alternative-k20.jsonl",
+      "surface": "query",
+      "k": 20,
+      "model": "gpt-6-sol",
+      "build": "esci-us-hard-book-s42-kdd-v4",
+      "skill": {
+        "source": "chapters/ch10/expected/skill.md",
+        "chars": 3715,
+        "sha256": "2b68b796b557c16b72a580b61e062e91a4b088bca3d3e4b18d9bcec7ef5ff34e"
+      },
+      "questions": 872,
+      "statements": 1615,
+      "grouping_calls": 0,
+      "counts": {
+        "hybrid_rrf": 1163,
+        "bm25_tuned": 440,
+        "no profile named": 9,
+        "semantic": 3
+      }
+    },
+    {
+      "name": "llm-query-alternative-k3-allprofiles",
+      "path": "chapters/ch10/expected/trajectories/llm-query-alternative-k3-allprofiles.jsonl",
+      "surface": "query",
+      "k": 3,
+      "model": "gpt-6-sol",
+      "build": "esci-us-hard-book-s42-kdd-v4",
+      "skill": {
+        "source": "chapters/ch10/expected/skill.md",
+        "chars": 5998,
+        "sha256": "d043bffef4335fb1f68451c2bb83f9e9e3452da507073bfb728f99abed07f5c1"
+      },
+      "questions": 872,
+      "statements": 1766,
+      "grouping_calls": 0,
+      "counts": {
+        "bm25_title": 280,
+        "bm25_weighted": 310,
+        "hybrid_rrf": 71,
+        "no profile named": 992,
+        "semantic": 14,
+        "bm25_all": 99
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "build": "esci-us-hard-book-s42-kdd-v4",
+  "split": "test",
+  "deployed_embedders": "embedder=BAAI/bge-small-en-v1.5@5c38ec7c, colbert=colbert-ir/colbertv2.0@c1e84128",
+  "planner": "rules",
+  "oracle_mode": false,
+  "shape": "alternative",
+  "k": 20,
+  "n": 872,
+  "successes": 358,
+  "success_rate": 0.4105504587155963,
+  "half_width": 0.03265159618541473,
+  "half_width_widest": 0.03318698761245122,
+  "success_definition": "all-top-k",
+  "successes_answer": 759,
+  "success_rate_answer": 0.8704128440366973,
+  "hit_at_k": 0.9954128440366973,
+  "precision_at_k": 0.8164480652703423,
+  "scored_for_hit_precision": 872,
+  "brand_recall_mean": null,
+  "brand_precision_mean": null,
+  "context_bytes_mean": 2532.7545871559632,
+  "status_counts": {
+    "ok": 1740,
+    "over_constrained": 4
+  },
+  "queries_per_task": {
+    "p50": 2.0,
+    "p95": 2.0
+  },
+  "invalid_queries_per_task": 0.0,
+  "queries_per_task_mean": 2.0045871559633026,
+  "latency_per_task_ms": {
+    "mean": 38.97018348623853,
+    "p50": 38.5,
+    "p95": 51.6,
+    "p99": 58.9,
+    "max": 74.4
+  },
+  "latency_per_query_ms_mean": 19.447572629969414,
+  "surface": "tools",
+  "model": null,
+  "date": "2026-10-16",
+  "vespa": "8.751.13",
+  "latency_conditions": {
+    "warm": false,
+    "note": "the step timings in the log come from one pass with no warm-up; they are not latency measurements"
+  },
+  "host": {
+    "captured_at": "2026-10-18T12:52:42Z",
+    "os": "Darwin 24.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M4 Pro",
+    "cpu_count": 14,
+    "memory_gb": 25.8,
+    "python": "3.11.13",
+    "docker": {
+      "cpus": 4,
+      "memory_gb": 10.4,
+      "server_version": "29.1.3",
+      "runtime": "Rancher Desktop",
+      "runtime_name": "lima-rancher-desktop",
+      "runtime_os": "Alpine Linux v3.23",
+      "context": "rancher-desktop"
+    }
+  }
+}

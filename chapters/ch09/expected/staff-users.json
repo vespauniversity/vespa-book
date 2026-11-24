@@ -1,0 +1,21 @@
+{
+  "invented": true,
+  "label": "These five users are invented to demonstrate authorization and to run the leakage test (docs/synthetic-data.md \u00a71); they are not evidence for any relevance claim.",
+  "users": {
+    "nike_staff": [
+      "nike"
+    ],
+    "fox_staff": [
+      "20th century fox"
+    ],
+    "marketplace_staff": [
+      "__marketplace__"
+    ],
+    "agency": [
+      "nike",
+      "adidas",
+      "hanes"
+    ],
+    "auditor": "*"
+  }
+}

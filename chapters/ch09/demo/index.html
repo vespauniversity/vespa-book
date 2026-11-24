@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent demo: catalogue alternatives</title>
+<style>
+  :root { --fg: #1d1d1f; --muted: #6b6b70; --line: #d9d9de; --bg: #ffffff;
+          --panel: #f5f5f7; --ok: #1f7a3a; --bad: #b42318; --warn: #8a5a00; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg: #ececf0; --muted: #a0a0a8; --line: #3a3a40; --bg: #18181b;
+            --panel: #232328; --ok: #5cc884; --bad: #ff7a6b; --warn: #e6b450; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin: 0 0 16px; }
+  legend { padding: 0 6px; color: var(--muted); }
+  label { margin-right: 18px; white-space: nowrap; }
+  .row { margin: 8px 0; }
+  .row > span.name { display: inline-block; min-width: 90px; color: var(--muted); }
+  select { max-width: 100%; width: 100%; font: inherit; padding: 4px; }
+  button { font: inherit; padding: 6px 22px; border-radius: 6px; border: 1px solid var(--line);
+           background: var(--fg); color: var(--bg); cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  .note { color: var(--warn); font-size: .9rem; }
+  .error { color: var(--bad); white-space: pre-wrap; }
+  .step { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin: 10px 0;
+          background: var(--panel); }
+  .step h3 { font-size: 1rem; margin: 0 0 6px; }
+  .meta { color: var(--muted); font-size: .9rem; }
+  code, pre { font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre { white-space: pre-wrap; word-break: break-word; margin: 6px 0; }
+  ol.tops { margin: 6px 0 0; padding-left: 22px; }
+  .status-ok { color: var(--ok); } .status-bad { color: var(--bad); }
+  .verdict { font-weight: 600; font-size: 1.05rem; }
+  #setup div.ok::before { content: "\2713  "; color: var(--ok); }
+  #setup div.bad::before { content: "\2717  "; color: var(--bad); }
+  #setup div.bad { color: var(--bad); }
+  #keybox input { font: inherit; padding: 4px 6px; width: 60%; min-width: 200px; }
+  #keybox button { padding: 4px 12px; }
+  #skill { border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; margin: 0 0 16px; }
+  #skill summary { cursor: pointer; }
+  #skill pre#skilltext { max-height: 420px; overflow: auto; background: var(--panel);
+                          border-radius: 6px; padding: 10px 12px; }
+  #prompt { border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; margin: 0 0 16px; }
+  #prompt summary { cursor: pointer; }
+  #prompt pre { max-height: 420px; overflow: auto; background: var(--panel);
+                border-radius: 6px; padding: 10px 12px; }
+  #prompt ul { margin: 4px 0 8px; padding-left: 22px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Agent demo: alternatives in a product catalogue</h1>
+  <p class="sub">An agent answers one question from the question set by searching the
+    catalogue, step by step. One question, one time, nothing measured or saved.</p>
+
+  <fieldset>
+    <legend>Setup</legend>
+    <div id="setup" class="meta">checking...</div>
+    <div id="keybox" hidden>
+      <p class="meta">No model key in the environment or the repository's .env. For the llm planner,
+        paste one here: the server keeps it in memory for this session only and never writes or shows it.</p>
+      <input id="keyinput" type="password" autocomplete="off" placeholder="OPENAI_API_KEY">
+      <button id="keybutton">Use this key for this session</button>
+      <div id="keyerror" class="error"></div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Run</legend>
+    <div class="row"><span class="name">Question</span>
+      <select id="question"><option>loading...</option></select></div>
+    <div class="row"><span class="name">Planner</span>
+      <label><input type="radio" name="planner" value="rules" checked> rules (a fixed recipe)</label>
+      <label><input type="radio" name="planner" value="llm"> llm (a language model)</label></div>
+    <div class="row"><span class="name">Surface</span>
+      <label><input type="radio" name="surface" value="tools" checked> tools</label>
+      <label><input type="radio" name="surface" value="query"> query language (llm only)</label></div>
+    <div class="row"><span class="name">Shape</span>
+      <label><input type="radio" name="shape" value="alternative" checked> one alternative product</label>
+      <label><input type="radio" name="shape" value="brands"> brands and counts</label></div>
+    <div class="row"><span class="name">k</span>
+      <label><input type="radio" name="k" value="3" checked> 3</label>
+      <label><input type="radio" name="k" value="20"> 20</label>
+      <span class="meta">results per search</span></div>
+    <div class="row"><span class="name">Hand over</span>
+      <label><input type="radio" name="oracle" value="none" checked> nothing</label>
+      <label><input type="radio" name="oracle" value="facts"> the anchor's brand and words</label>
+      <label><input type="radio" name="oracle" value="products"> the answer set's products</label></div>
+    <div class="row"><button id="run">Run</button> <span id="state" class="meta"></span></div>
+    <p class="note">The llm planner calls the model's API once per turn (up to four turns a
+      question), and every call costs money. It needs a model key: OPENAI_API_KEY in the
+      environment or the repository's .env file, or the key box above.</p>
+    <div id="formerror" class="error"></div>
+  </fieldset>
+
+  <details id="skill">
+    <summary>Skill — what the model is given on the query surface
+      <span class="meta">(<code id="skillpath">loading...</code>)</span></summary>
+    <p id="skillnote" class="meta">Generated from the deployed application package by
+      <code>chapters/ch10/schema_skill.py</code>; nothing in it is written by hand.</p>
+    <pre id="skilltext">loading...</pre>
+    <div id="skillerror" class="error"></div>
+  </details>
+
+  <details id="prompt">
+    <summary>Prompt — what the model receives
+      <span class="meta">(<span id="promptsurface">tools</span> surface)</span></summary>
+    <p class="meta">This is the text sent to the model as its instructions; on the query surface
+      the Skill above is part of it. Built by the same code as the planner's, from
+      <code id="promptsource">chapters/ch10/agent_loop.py</code>.</p>
+    <pre id="prompttext">loading...</pre>
+    <p class="meta">Each turn the model receives that text and, after it, the question and what the
+      tools have returned so far (placeholders in angle brackets):</p>
+    <pre id="prompttemplate"></pre>
+    <ul id="promptnotes" class="meta"></ul>
+    <div class="meta">The question, by shape:</div>
+    <pre id="promptquestions"></pre>
+    <div id="prompterror" class="error"></div>
+  </details>
+
+  <section id="out"></section>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const val = (name) => document.querySelector(`input[name=${name}]:checked`).value;
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let timer = null;
+
+async function loadQuestions() {
+  const r = await fetch("/api/questions?split=test");
+  const data = await r.json();
+  if (!r.ok) { $("formerror").textContent = data.error; return; }
+  $("question").innerHTML = data.map((q) =>
+    `<option value="${esc(q.question_id)}">${esc(q.question_id)}: ${esc(q.anchor_title.slice(0, 110))}` +
+    ` (pool ${q.pool_size})</option>`).join("");
+}
+
+function syncSurface() {
+  const llm = val("planner") === "llm";
+  const q = document.querySelector("input[name=surface][value=query]");
+  q.disabled = !llm;
+  if (!llm && q.checked) document.querySelector("input[name=surface][value=tools]").checked = true;
+}
+document.querySelectorAll("input[name=planner]").forEach((el) => el.addEventListener("change", syncSurface));
+// choosing the query surface opens the Skill panel; after that it stays as the user leaves it
+document.querySelector("input[name=surface][value=query]").addEventListener("change", (e) => {
+  if (e.target.checked) $("skill").open = true;
+});
+
+const OWNER_LINE = "What this catalogue's own measurements say:";
+async function loadSkill() {
+  let r, data;
+  try { r = await fetch("/api/skill"); data = await r.json(); }
+  catch (e) { $("skilltext").textContent = ""; $("skillerror").textContent = "the demo server does not answer"; return; }
+  if (!r.ok) { $("skillpath").textContent = "missing"; $("skilltext").textContent = "";
+               $("skillerror").textContent = data.error; return; }
+  $("skillpath").textContent = data.path;
+  $("skilltext").textContent = data.text;
+  $("skillnote").innerHTML = `Generated from the deployed application package by <code>${esc(data.generated_by)}</code>; ` +
+    (data.text.includes(OWNER_LINE)
+      ? `nothing in it is written by hand except the paragraph under “${esc(OWNER_LINE)}”, which the catalogue's owner adds.`
+      : "nothing in it is written by hand.");
+}
+
+async function loadPrompt() {
+  const surface = val("surface");
+  $("promptsurface").textContent = surface;
+  $("prompterror").textContent = "";
+  let r, data;
+  try { r = await fetch(`/api/prompt?surface=${encodeURIComponent(surface)}`); data = await r.json(); }
+  catch (e) { $("prompttext").textContent = ""; $("prompterror").textContent = "the demo server does not answer"; return; }
+  if (val("surface") !== surface) return;   // the surface changed while this was loading
+  if (!r.ok) { $("prompttext").textContent = ""; $("prompttemplate").textContent = "";
+               $("promptnotes").innerHTML = ""; $("promptquestions").textContent = "";
+               $("prompterror").textContent = data.error; return; }
+  $("promptsource").textContent = data.source;
+  $("prompttext").textContent = data.system;
+  $("prompttemplate").textContent = data.user_template;
+  $("promptnotes").innerHTML = data.notes.map((n) => `<li>${esc(n)}</li>`).join("");
+  $("promptquestions").textContent = Object.entries(data.questions)
+    .map(([shape, text]) => `${shape}: ${text}`).join("\n\n");
+}
+document.querySelectorAll("input[name=surface]").forEach((el) => el.addEventListener("change", loadPrompt));
+document.querySelectorAll("input[name=planner]").forEach((el) => el.addEventListener("change", loadPrompt));
+
+function renderStep(s) {
+  const head = `<h3>Step ${s.step}: ${esc(s.tool)}</h3>`;
+  if (s.tool === "final") {
+    return `<div class="step">${head}<div>Answer: <code>${esc(s.answer || "(none)")}</code></div>` +
+      (s.llm_ms != null ? `<div class="meta">model ${s.llm_ms} ms</div>` : "") + `</div>`;
+  }
+  if (s.tool === "error") {
+    return `<div class="step">${head}<div class="error">${esc(JSON.stringify(s.error))}</div></div>`;
+  }
+  let asked = "";
+  if (s.tool === "query") {
+    asked = `<div class="meta">the model wrote</div><pre>${esc(s.args.yql)}</pre>` +
+      (s.yql_sent ? `<div class="meta">sent to the engine</div><pre>${esc(s.yql_sent)}</pre>` : "");
+    const rest = Object.assign({}, s.args); delete rest.yql;
+    if (Object.keys(rest).length) asked += `<pre>${esc(JSON.stringify(rest))}</pre>`;
+  } else {
+    asked = `<pre>${esc(JSON.stringify(s.args, null, 1))}</pre>`;
+  }
+  const cls = s.status === "ok" ? "status-ok" : (s.status === "running" ? "" : "status-bad");
+  const tops = (s.top || []).map((t) =>
+    `<li><code>${esc(t.id)}</code> ${esc(t.title)}${t.brand ? ` <span class="meta">(${esc(t.brand)})</span>` : ""}</li>`).join("");
+  const timing = [s.ms != null ? `engine ${s.ms} ms` : "", s.llm_ms != null ? `model ${s.llm_ms} ms` : "",
+                  s.requests != null ? `${s.requests} request(s)` : ""].filter(Boolean).join(", ");
+  return `<div class="step">${head}${asked}<div>Status: <span class="${cls}">${esc(s.status)}</span>` +
+    (s.message ? ` <span class="error">${esc(s.message)}</span>` : "") + `</div>` +
+    (tops ? `<ol class="tops">${tops}</ol>` : "") +
+    (timing ? `<div class="meta">${timing}</div>` : "") + `</div>`;
+}
+
+function renderResult(r) {
+  if (!r) return "";
+  let verdict;
+  if (r.shape === "brands") {
+    const f = (x) => x == null ? "n/a" : x.toFixed(3);
+    verdict = `Brand recall ${f(r.brand_recall)}, precision ${f(r.brand_precision)}: ` +
+      (r.success ? "every brand of the answer key named." : "not every brand of the answer key named.");
+  } else {
+    verdict = r.success ? `The answer is in the answer key (${r.oracle_size} acceptable products).`
+                        : `The answer is not in the answer key (${r.oracle_size} acceptable products).`;
+  }
+  return `<div class="step"><h3>Answer</h3><pre>${esc(r.answer || "(none)")}</pre>` +
+    `<div class="verdict ${r.success ? "status-ok" : "status-bad"}">${esc(verdict)}</div>` +
+    `<div class="meta">${r.queries_issued} queries, ${r.context_bytes} bytes of results shown to the planner, ` +
+    `${r.ms} ms in all. One question, one time, nothing measured or saved.</div>` +
+    (r.error ? `<div class="error">${esc(JSON.stringify(r.error))}</div>` : "") + `</div>`;
+}
+
+async function poll(runId) {
+  const r = await fetch(`/api/runs/${runId}`);
+  const v = await r.json();
+  if (!r.ok) { $("formerror").textContent = v.error; stop(); return; }
+  const q = v.request;
+  $("out").innerHTML = `<p class="meta">Question ${esc(q.question_id)}: ${esc(q.anchor_title)}<br>` +
+    `${esc(q.planner)} planner, ${esc(q.surface)} surface, ${esc(q.shape)}, k = ${q.k}` +
+    (q.oracle !== "none" ? `, handed ${esc(q.oracle)}` : "") + `</p>` +
+    v.steps.map(renderStep).join("") + renderResult(v.result) +
+    (v.error ? `<div class="error">${esc(v.error)}</div>` : "");
+  $("state").textContent = v.status === "running" ? `running (${v.phase})...` : v.status;
+  if (v.status !== "running") stop();
+}
+
+function stop() { clearInterval(timer); timer = null; $("run").disabled = false; }
+
+$("run").addEventListener("click", async () => {
+  $("formerror").textContent = "";
+  $("run").disabled = true;
+  const body = { question_id: $("question").value, planner: val("planner"), surface: val("surface"),
+                 shape: val("shape"), k: Number(val("k")), oracle: val("oracle"), split: "test" };
+  const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify(body) });
+  const data = await r.json();
+  if (!r.ok) { $("formerror").textContent = data.error; $("run").disabled = false; return; }
+  $("out").innerHTML = "";
+  timer = setInterval(() => poll(data.run_id), 400);
+  poll(data.run_id);
+});
+
+async function loadStatus() {
+  let st;
+  try { st = await (await fetch("/api/status")).json(); }
+  catch (e) { $("setup").innerHTML = `<div class="bad">the demo server does not answer</div>`; return; }
+  const lines = [];
+  const v = st.vespa;
+  if (!v.up) lines.push(["bad", `Vespa: ${v.error}. Fix: ./bootstrap.sh ch10`]);
+  else if (!v.documents) lines.push(["bad", `Vespa ${v.version}: no product documents. Fix: ./bootstrap.sh ch10`]);
+  else lines.push(["ok", `Vespa ${v.version} at ${st.endpoint}: ${v.documents.toLocaleString("en")} products`]);
+  lines.push(st.build === "present" ? ["ok", "catalogue build present"]
+                                    : ["bad", "catalogue build missing. Fix: ./bootstrap.sh ch10"]);
+  if (st.build === "present")
+    lines.push(st.questions === "present" ? ["ok", "question set present"]
+      : ["bad", "question set missing. Fix: .venv/bin/python chapters/ch10/build_multihop_set.py --split test --threshold 3 > /dev/null"]);
+  const where = { "env": "the environment", ".env": "the repository's .env", "session": "the key box, this session only" };
+  lines.push(st.key === "none" ? ["bad", "model key: none (the rules planner works without one)"]
+                               : ["ok", `model key from ${where[st.key]}; model ${st.model}`]);
+  $("setup").innerHTML = lines.map(([c, t]) => `<div class="${c}">${esc(t)}</div>`).join("");
+  $("keybox").hidden = st.key !== "none";
+}
+
+$("keybutton").addEventListener("click", async () => {
+  $("keyerror").textContent = "";
+  const r = await fetch("/api/key", { method: "POST", headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ key: $("keyinput").value }) });
+  $("keyinput").value = "";
+  if (!r.ok) { $("keyerror").textContent = (await r.json()).error; return; }
+  loadStatus();
+});
+
+loadStatus();
+loadQuestions();
+loadSkill();
+syncSurface();
+loadPrompt();
+</script>
+</body>
+</html>

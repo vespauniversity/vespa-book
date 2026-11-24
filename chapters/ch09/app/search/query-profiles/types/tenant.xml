@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- The type behind the `tenant` query profile: a request that selects that
+     profile must carry `tenant`, a string, or Vespa refuses it before any
+     matching happens. The value is the caller's allowed sellers, written as
+     the inside of a YQL `in (...)` list - `"nike"` or `"nike", "adidas"` -
+     and it is meant to be filled in by the trusted endpoint from the
+     caller's identity, never typed by the caller. -->
+<query-profile-type id="tenant">
+    <field name="tenant" type="string" mandatory="true"/>
+</query-profile-type>

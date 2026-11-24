@@ -1,0 +1,68 @@
+
+== 1/5 venv
+   skip  .venv exists (Python 3.11.13)
+   skip  group base already at pinned versions
+
+== 2/5 corpus (preset book)
+   skip  builds/esci-us-hard-book-s42-kdd-v4 verifies
+
+== 3/5 container (vespa-book-fable, vespaengine/vespa:8.751.13)
+   do    docker run vespaengine/vespa:8.751.13
+   wait  config server... up
+
+== 4/5 application (chapters/ch11/app)
+   do    models.py fetch --model cross --into chapters/ch11/app/models  (pinned url, verified by sha256; skipped when already there)
+     chapters/ch11/app/models/cross_encoder.onnx already has the pinned sha256, not re-downloading
+   do    vespa deploy --wait 300 chapters/ch11/app
+   Success: Deployed 'chapters/ch11/app' with session ID 2
+   WARNING In document-summary 'context' in schema 'product': Fields [snippet] references non-attribute fields: Using this summary will cause disk accesses. Set 'from-disk' on this document-summary to silence this warning.
+   Waiting up to 5m0s for deployment to converge...
+
+== 5/5 documents (want 101341, carrying colbert)
+   do    .venv/bin/python shared/tools/feed.py --out chapters/ch11/expected/feed.json  (0 of 101341 documents)
+feeding <WORKDIR>/builds/esci-us-hard-book-s42-kdd-v4/products.jsonl
+  20,096 acknowledged | 72 docs/s
+  40,064 acknowledged | 66 docs/s
+  60,032 acknowledged | 63 docs/s
+  80,000 acknowledged | 60 docs/s
+  100,096 acknowledged | 58 docs/s
+101,341 ok, 0 failed, 0 retried in 1752.9s (58 docs/s)
+wrote chapters/ch11/expected/feed.json
+| label | feed | rate |
+|---|---|---|
+| products.jsonl | 29m 12s | 58 docs/s |
+
+   do    .venv/bin/python chapters/ch08/derive_tenants.py --out chapters/ch11/expected/tenants.json --users-out chapters/ch11/expected/staff-users.json && .venv/bin/python shared/tools/feed.py builds/esci-us-hard-book-s42-kdd-v4/tenants.jsonl --out chapters/ch11/expected/feed-tenants.json  (no document carries tenant_id yet)
+101,341 update lines -> <WORKDIR>/builds/esci-us-hard-book-s42-kdd-v4/tenants.jsonl
+40,337 tenants, 27,342 singletons, marketplace 5,397, largest brand 'nike' (604)
+wrote chapters/ch11/expected/tenants.json
+wrote chapters/ch11/expected/staff-users.json
+| rung | filter clause | documents | share |
+|---|---|---|---|
+| has_description | `has_description = true` | 51,995 | 51.31% |
+| has_brand | `!(tenant_id contains "__marketplace__")` | 95,944 | 94.67% |
+| marketplace | `tenant_id contains "__marketplace__"` | 5,397 | 5.33% |
+| nike | `tenant_id contains "nike"` | 604 | 0.60% |
+| small_brand | `tenant_id contains "20th century fox"` | 10 | 0.01% |
+
+feeding builds/esci-us-hard-book-s42-kdd-v4/tenants.jsonl
+  20,096 acknowledged | 426 docs/s
+  40,064 acknowledged | 435 docs/s
+  60,032 acknowledged | 441 docs/s
+  80,000 acknowledged | 440 docs/s
+  100,096 acknowledged | 441 docs/s
+101,341 ok, 0 failed, 0 retried in 229.6s (441 docs/s)
+wrote chapters/ch11/expected/feed-tenants.json
+| label | feed | rate |
+|---|---|---|
+| tenants.jsonl | 3m 49s | 441 docs/s |
+
+   tenant_id set on 101341 documents
+
+== at the start of ch11
+   build      builds/esci-us-hard-book-s42-kdd-v4
+   image      vespaengine/vespa:8.751.13
+   documents  101341
+   embedders  embedder=BAAI/bge-small-en-v1.5@5c38ec7c colbert=colbert-ir/colbertv2.0@c1e84128 
+time 2091s wall
+4 passed, 696 deselected in 9.63s
