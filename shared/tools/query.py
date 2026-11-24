@@ -363,8 +363,7 @@ def main() -> int:
                     help="build the request through evaluate.build_request "
                          "instead of --yql - the same union YQL the "
                          "chapter's evaluations send, with --hits also "
-                         "setting the vector arm's totalTargetHits (the "
-                         "engine finds at least 100), not a "
+                         "setting the vector arm's targetHits, not a "
                          "hand-typed near-copy of it. Mutually exclusive "
                          "with a non-default --yql")
     ap.add_argument("--param", action="append", default=None, metavar="KEY=VALUE",
